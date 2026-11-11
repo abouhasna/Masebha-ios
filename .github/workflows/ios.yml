@@ -1,0 +1,68 @@
+# Builds the app on a cloud Mac, runs all tests in the iOS Simulator,
+# saves screenshots, and produces an unsigned .ipa for sideloading.
+name: iOS CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-test-package:
+    name: Build, test, package
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Select Xcode 26
+        run: bash scripts/ci/select-xcode.sh
+
+      - name: Install XcodeGen
+        run: bash scripts/ci/install-xcodegen.sh
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Pick a simulator
+        id: sim
+        run: echo "udid=$(bash scripts/ci/pick-simulator.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: Run unit and UI tests
+        run: bash scripts/ci/run-tests.sh "${{ steps.sim.outputs.udid }}"
+
+      - name: Export test summary and screenshots
+        if: always()
+        run: bash scripts/ci/export-test-results.sh
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: |
+            build/test-results/summary.json
+            build/test-results/tests.json
+            build/test-results/screenshots
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Build unsigned IPA for sideloading
+        run: bash scripts/ci/build-unsigned-ipa.sh
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v7
+        with:
+          name: Masebha-dev-ipa
+          path: build/Masebha-dev.ipa
+          if-no-files-found: error
+          retention-days: 14

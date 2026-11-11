@@ -1,0 +1,42 @@
+{
+  "sourceLanguage" : "ar",
+  "strings" : {
+    "pipeline.subtitle" : {
+      "comment" : "Temporary Leap 0 screen: confirms the test build installed.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تم تثبيت النسخة التجريبية بنجاح"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Test build installed successfully"
+          }
+        }
+      }
+    },
+    "pipeline.title" : {
+      "comment" : "Temporary Leap 0 screen: app name.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "مسبحة"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tasbeeh"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

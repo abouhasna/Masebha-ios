@@ -1,0 +1,12 @@
+# Always store and check out text files with LF endings.
+# The CI runs on macOS; CRLF line endings would break the bash scripts.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ttf binary
+*.otf binary
+*.wav binary
+*.caf binary
+*.ipa binary
