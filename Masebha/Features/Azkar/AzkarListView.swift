@@ -1,7 +1,9 @@
 import SwiftUI
+import UIKit
 
 /// The home screen: the user's adhkar as cards (≈ MainActivity + MyAdapter on Android).
-/// Tap a card to count, long-press and drag to reorder, ⋮ for edit / reset / delete.
+/// Tap a card to count, ⋮ for edit / reset / delete. Long-press a card to reorder: iPhone lists
+/// reorder in "edit mode", so the long press turns it on (≡ handles appear) and "Done" ends it.
 struct AzkarListView: View {
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.scenePhase) private var scenePhase
@@ -13,6 +15,7 @@ struct AzkarListView: View {
     @State private var pendingReset: Dhikr?
     @State private var pendingDelete: Dhikr?
     @State private var errorMessage: String?
+    @State private var editMode: EditMode = .inactive
 
     var body: some View {
         let palette = environment.palette
@@ -23,7 +26,10 @@ struct AzkarListView: View {
                           onReset: { pendingReset = item },
                           onDelete: { pendingDelete = item })
                     .contentShape(Rectangle())
-                    .onTapGesture { onOpen(item.id) }
+                    .onTapGesture {
+                        if !editMode.isEditing { onOpen(item.id) }
+                    }
+                    .onLongPressGesture(minimumDuration: 0.5) { startReordering() }
                     .listRowInsets(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
@@ -31,6 +37,7 @@ struct AzkarListView: View {
             .onMove(perform: move)
         }
         .listStyle(.plain)
+        .environment(\.editMode, $editMode)
         .scrollContentBackground(.hidden)
         .contentMargins(.bottom, 88, for: .scrollContent)   // the last card is never hidden by "+"
         .background(ThemedBackground(color: palette.background, pattern: environment.showsPattern))
@@ -45,13 +52,24 @@ struct AzkarListView: View {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            addButton(palette)
+            if !editMode.isEditing { addButton(palette) }
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
+            // The title area (not a bar button), so iOS 26 does not wrap it in a glass capsule.
+            ToolbarItem(placement: .principal) {
                 HijriHeader(color: palette.toolsAccent, offset: environment.settings.hijriOffset,
                             language: environment.settings.language, now: now)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            if editMode.isEditing {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(tr("common.done")) {
+                        withAnimation { editMode = .inactive }
+                    }
+                    .bold()
+                    .accessibilityIdentifier("list.doneReordering")
+                }
             }
         }
         .themedNavigationBar(palette.tools)
@@ -103,6 +121,12 @@ struct AzkarListView: View {
     }
 
     // MARK: Actions
+
+    private func startReordering() {
+        guard !editMode.isEditing, items.count > 1 else { return }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        withAnimation { editMode = .active }
+    }
 
     private func reload() {
         now = Date()

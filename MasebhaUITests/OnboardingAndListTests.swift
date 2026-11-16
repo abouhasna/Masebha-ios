@@ -105,19 +105,32 @@ final class OnboardingAndListTests: XCTestCase {
     }
 
     @MainActor
-    func testLongPressDragReordersAndPersists() throws {
+    func testLongPressStartsReorderingAndTheOrderPersists() throws {
         let app = launchApp()
         let first = app.card("Subhan Allah")
-        let third = app.card("Allahu Akbar")
         XCTAssertTrue(first.waitForExistence(timeout: 10))
-        first.press(forDuration: 1.2, thenDragTo: third)
+
+        // Long-press: reorder mode with ≡ handles and a Done button; "+" is hidden meanwhile.
+        first.press(forDuration: 1.0)
+        let done = app.buttons["list.doneReordering"]
+        XCTAssertTrue(done.waitForExistence(timeout: 5), "Reorder mode did not start")
+        XCTAssertFalse(app.element("list.add").exists)
+        let handles = app.buttons.matching(NSPredicate(format: "label BEGINSWITH[c] 'Reorder'"))
+        XCTAssertGreaterThanOrEqual(handles.count, 3, "No reorder handles")
+        screenshot(app, "05-reorder-mode")
+
+        // Drag the first card's handle down past the third card.
+        handles.element(boundBy: 0).press(forDuration: 0.6, thenDragTo: handles.element(boundBy: 2),
+                                          withVelocity: .slow, thenHoldForDuration: 0.5)
+        done.tap()
+        XCTAssertTrue(app.element("list.add").waitForExistence(timeout: 5))
 
         let names = {
             app.descendants(matching: .any).matching(identifier: "card.name").allElementsBoundByIndex.map { $0.label }
         }
         XCTAssertNotEqual(names().first, "Subhan Allah", "Order did not change: \(names())")
         let orderAfterDrag = names()
-        screenshot(app, "05-after-reorder")
+        screenshot(app, "06-after-reorder")
 
         relaunch(app)
         XCTAssertTrue(app.card("Subhan Allah").waitForExistence(timeout: 10))

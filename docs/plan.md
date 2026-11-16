@@ -63,6 +63,10 @@ These are small differences from Android, decided during the build. Each one is 
 - **Native mirroring in Arabic.** Previous/Next, Total/Loops and the "+" button swap sides, as in native Arabic iOS apps. The ± buttons of the timer dialog stay left-to-right, because they show numbers.
 - **"Sound while timer runs in background" is not on iOS.** iOS has no background timer (decision Q2).
 - **Timer dialog "Cancel" discards the change.** On Android a cancelled change was kept by mistake.
+- **Long-press starts reorder mode.**
+  - iPhone lists only reorder in "edit mode", so a long-press turns it on: ≡ handles appear, you drag them, then tap "Done". This is the standard iOS pattern.
+  - Free drag-and-drop is off on iPhone lists, so it would be unreliable.
+- **iOS 26 look.** Toolbar buttons sit in the system's glass capsule, and the tab bar is iOS 26's floating glass bar instead of a solid green bar. The theme colors still apply to the bars and screens.
 - **The "+" button is always visible.** The list gets extra space at the bottom so it never hides the last card; Android hid it while scrolling.
 - **Add/Edit is an iOS sheet with inline error messages**, instead of a dialog with toasts. The validation rules are the same.
 - **Counter reset is an iOS action sheet** with "Reset" / "Reset all" / "Cancel".

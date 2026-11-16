@@ -145,10 +145,21 @@ struct CounterView: View {
         }
         .foregroundStyle(icon)
         .padding(.horizontal, 4)
-        .background(
+        .background { pillBackground(icon) }
+        // Its own identifier, so the toolbar item does not borrow the first button's one.
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("counter.actions")
+    }
+
+    /// iOS 26 already draws a glass capsule around toolbar items; earlier versions get ours.
+    @ViewBuilder
+    private func pillBackground(_ icon: Color) -> some View {
+        if #available(iOS 26.0, *) {
+            EmptyView()
+        } else {
             Capsule().fill(icon.opacity(0.15))
                 .overlay(Capsule().stroke(icon.opacity(0.2), lineWidth: 1))
-        )
+        }
     }
 
     private func pillButton(_ symbol: String, label: String, id: String, action: @escaping () -> Void) -> some View {
@@ -182,24 +193,27 @@ struct CounterView: View {
         .padding(.vertical, 8)
     }
 
+    @ViewBuilder
     private func navButton(_ title: String, color: ARGB, enabled: Bool, id: String,
                            action: @escaping () -> Void) -> some View {
         let tint = Color(argb: color)
-        return Button(action: action) {
-            Text(title)
-                .appFont(15, .medium)
-                .foregroundStyle(tint)
-                .frame(maxWidth: .infinity, minHeight: 44)
-                .background(
-                    Capsule().fill(tint.opacity(0.12))
-                        .overlay(Capsule().stroke(tint.opacity(0.18), lineWidth: 1))
-                )
-                .contentShape(Capsule())
+        if enabled {
+            Button(action: action) {
+                Text(title)
+                    .appFont(15, .medium)
+                    .foregroundStyle(tint)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background(
+                        Capsule().fill(tint.opacity(0.12))
+                            .overlay(Capsule().stroke(tint.opacity(0.18), lineWidth: 1))
+                    )
+                    .contentShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier(id)
+        } else {
+            // Keeps the place of the missing button (like Android's INVISIBLE), with nothing to tap.
+            Color.clear.frame(maxWidth: .infinity, minHeight: 44)
         }
-        .buttonStyle(.plain)
-        .opacity(enabled ? 1 : 0)   // keeps its place, like Android's INVISIBLE
-        .disabled(!enabled)
-        .accessibilityHidden(!enabled)
-        .accessibilityIdentifier(id)
     }
 }

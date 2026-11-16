@@ -153,7 +153,7 @@ final class CounterTests: XCTestCase {
         screenshot(app, "14-power-mode")
         app.element("counter.powerClose").tap()
         XCTAssertEqual(app.value("counter.current"), "3")
-        XCTAssertTrue(app.element("counter.timer").exists)
+        XCTAssertTrue(app.buttons["counter.timer"].exists)
     }
 
     @MainActor
@@ -169,7 +169,7 @@ final class CounterTests: XCTestCase {
         screenshot(app, "15-timer-dialog")
         app.buttons["timer.start"].tap()
 
-        let timer = app.element("counter.timer")
+        let timer = app.buttons["counter.timer"]
         XCTAssertEqual(timer.value as? String, "running")
         sleep(3)
         // Manual taps are ignored while the timer counts.
@@ -188,13 +188,13 @@ final class CounterTests: XCTestCase {
     func testLeavingTheAppPausesTheTimer() throws {
         let app = launchApp()
         app.openCard("Subhan Allah")
-        app.element("counter.timer").tap()
-        XCTAssertEqual(app.element("counter.timer").value as? String, "running")
+        app.buttons["counter.timer"].tap()
+        XCTAssertEqual(app.buttons["counter.timer"].value as? String, "running")
         sleep(2)
         XCUIDevice.shared.press(.home)
         sleep(3)
         app.activate()
-        let timer = app.element("counter.timer")
+        let timer = app.buttons["counter.timer"]
         XCTAssertTrue(timer.waitForExistence(timeout: 5))
         XCTAssertEqual(timer.value as? String, "stopped")
         let total = app.value("counter.total")

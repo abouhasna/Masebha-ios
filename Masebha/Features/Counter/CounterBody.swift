@@ -16,9 +16,11 @@ struct CounterBody: View {
                 VStack(spacing: 0) {
                     dhikrText(width: width, scrollable: true)
                     statistics
-                    Spacer(minLength: 12)
-                    ring(diameter: min(width - 72, max(160, geometry.size.height * 0.5), 340))
-                    Spacer(minLength: 12)
+                    // The ring takes the space that is left, so it never overlaps the buttons below.
+                    GeometryReader { space in
+                        ring(diameter: max(120, min(space.size.width - 72, space.size.height - 32, 340)))
+                            .frame(width: space.size.width, height: space.size.height)
+                    }
                 }
             } else {
                 // The whole content scrolls instead.
@@ -112,6 +114,9 @@ struct ProgressRing: View {
                 .padding(28)
                 .accessibilityIdentifier("counter.current")
         }
+        // The ring always starts at the top and fills clockwise, in Arabic too (SwiftUI would
+        // otherwise mirror the rotation in right-to-left mode).
+        .environment(\.layoutDirection, .leftToRight)
     }
 }
 
