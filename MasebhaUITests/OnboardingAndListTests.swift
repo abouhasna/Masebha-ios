@@ -105,48 +105,58 @@ final class OnboardingAndListTests: XCTestCase {
     }
 
     @MainActor
-    func testReorderFromTheCardMenu() throws {
+    private func cardNames(_ app: XCUIApplication) -> [String] {
+        app.descendants(matching: .any).matching(identifier: "card.name").allElementsBoundByIndex.map { $0.label }
+    }
+
+    /// ⋮ → Reorder: handles appear; dragging a handle moves the card; Done ends it.
+    @MainActor
+    func testReorderFromTheCardMenuWithHandles() throws {
         let app = launchApp()
         XCTAssertTrue(app.card("Subhan Allah").waitForExistence(timeout: 10))
         app.cardMenu("Subhan Allah", choose: "Reorder")
         let done = app.buttons["list.doneReordering"]
         XCTAssertTrue(done.waitForExistence(timeout: 5))
-        done.tap()
-        XCTAssertTrue(app.element("list.add").waitForExistence(timeout: 5))
-    }
-
-    @MainActor
-    func testLongPressStartsReorderingAndTheOrderPersists() throws {
-        let app = launchApp()
-        let first = app.card("Subhan Allah")
-        XCTAssertTrue(first.waitForExistence(timeout: 10))
-
-        // Long-press: reorder mode with ≡ handles and a Done button; "+" is hidden meanwhile.
-        first.press(forDuration: 1.0)
-        let done = app.buttons["list.doneReordering"]
-        let started = done.waitForExistence(timeout: 5)
-        screenshot(app, "05a-after-long-press")
-        XCTAssertTrue(started, "Reorder mode did not start")
-        XCTAssertFalse(app.element("list.add").exists)
+        XCTAssertFalse(app.element("list.add").exists)   // "+" hidden while reordering
         let handles = app.buttons.matching(NSPredicate(format: "label BEGINSWITH[c] 'Reorder'"))
         XCTAssertGreaterThanOrEqual(handles.count, 3, "No reorder handles")
         screenshot(app, "05-reorder-mode")
 
-        // Drag the first card's handle down past the third card.
         handles.element(boundBy: 0).press(forDuration: 0.6, thenDragTo: handles.element(boundBy: 2),
                                           withVelocity: .slow, thenHoldForDuration: 0.5)
         done.tap()
         XCTAssertTrue(app.element("list.add").waitForExistence(timeout: 5))
-
-        let names = {
-            app.descendants(matching: .any).matching(identifier: "card.name").allElementsBoundByIndex.map { $0.label }
-        }
-        XCTAssertNotEqual(names().first, "Subhan Allah", "Order did not change: \(names())")
-        let orderAfterDrag = names()
-        screenshot(app, "06-after-reorder")
+        XCTAssertNotEqual(cardNames(app).first, "Subhan Allah", "Order did not change: \(cardNames(app))")
+        let order = cardNames(app)
 
         relaunch(app)
         XCTAssertTrue(app.card("Subhan Allah").waitForExistence(timeout: 10))
-        XCTAssertEqual(names(), orderAfterDrag)
+        XCTAssertEqual(cardNames(app), order)
+    }
+
+    /// Long-press and drag a card directly (like Android). If this iOS version opens the
+    /// handle mode instead, the test finishes the move with a handle.
+    @MainActor
+    func testLongPressAndDragReordersAndPersists() throws {
+        let app = launchApp()
+        let first = app.card("Subhan Allah")
+        let third = app.card("Allahu Akbar")
+        XCTAssertTrue(first.waitForExistence(timeout: 10))
+
+        first.press(forDuration: 1.0, thenDragTo: third, withVelocity: .slow, thenHoldForDuration: 0.6)
+        let done = app.buttons["list.doneReordering"]
+        if done.waitForExistence(timeout: 2) {
+            let handles = app.buttons.matching(NSPredicate(format: "label BEGINSWITH[c] 'Reorder'"))
+            handles.element(boundBy: 0).press(forDuration: 0.6, thenDragTo: handles.element(boundBy: 2),
+                                              withVelocity: .slow, thenHoldForDuration: 0.5)
+            done.tap()
+        }
+        screenshot(app, "06-after-long-press-drag")
+        XCTAssertNotEqual(cardNames(app).first, "Subhan Allah", "Order did not change: \(cardNames(app))")
+        let order = cardNames(app)
+
+        relaunch(app)
+        XCTAssertTrue(app.card("Subhan Allah").waitForExistence(timeout: 10))
+        XCTAssertEqual(cardNames(app), order)
     }
 }

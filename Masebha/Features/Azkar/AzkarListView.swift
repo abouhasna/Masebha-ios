@@ -2,8 +2,10 @@ import SwiftUI
 import UIKit
 
 /// The home screen: the user's adhkar as cards (≈ MainActivity + MyAdapter on Android).
-/// Tap a card to count, ⋮ for edit / reset / delete. Long-press a card to reorder: iPhone lists
-/// reorder in "edit mode", so the long press turns it on (≡ handles appear) and "Done" ends it.
+/// Tap a card to count, ⋮ for edit / reset / reorder / delete.
+/// Reordering: long-press and drag a card (the list lifts it, like Android). "⋮ → Reorder" opens the
+/// handle mode (≡ + Done), which also works with VoiceOver; on an iOS version where the list does
+/// not lift the card, the long press opens that same mode.
 struct AzkarListView: View {
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.scenePhase) private var scenePhase
