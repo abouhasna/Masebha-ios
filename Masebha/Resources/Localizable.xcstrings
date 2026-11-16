@@ -103,6 +103,23 @@
         }
       }
     },
+    "card.reorder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ترتيب"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reorder"
+          }
+        }
+      }
+    },
     "colors.background" : {
       "extractionState" : "manual",
       "localizations" : {

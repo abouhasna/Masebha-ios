@@ -102,6 +102,10 @@ struct DhikrEditorSheet: View {
         }
         .tint(Color(argb: SettingsStyle.accent))
         .presentationDetents([.large])
+        // An old error message disappears as soon as the user corrects a field.
+        .onChange(of: name) { problem = nil }
+        .onChange(of: loopSize) { problem = nil }
+        .onChange(of: total) { problem = nil }
     }
 
     private func save() {

@@ -24,6 +24,7 @@ struct AzkarListView: View {
                 DhikrCard(dhikr: item, palette: palette, now: now,
                           onEdit: { editor = .edit(item) },
                           onReset: { pendingReset = item },
+                          onReorder: startReordering,
                           onDelete: { pendingDelete = item })
                     .contentShape(Rectangle())
                     .onTapGesture {

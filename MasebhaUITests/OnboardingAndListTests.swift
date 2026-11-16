@@ -105,6 +105,17 @@ final class OnboardingAndListTests: XCTestCase {
     }
 
     @MainActor
+    func testReorderFromTheCardMenu() throws {
+        let app = launchApp()
+        XCTAssertTrue(app.card("Subhan Allah").waitForExistence(timeout: 10))
+        app.cardMenu("Subhan Allah", choose: "Reorder")
+        let done = app.buttons["list.doneReordering"]
+        XCTAssertTrue(done.waitForExistence(timeout: 5))
+        done.tap()
+        XCTAssertTrue(app.element("list.add").waitForExistence(timeout: 5))
+    }
+
+    @MainActor
     func testLongPressStartsReorderingAndTheOrderPersists() throws {
         let app = launchApp()
         let first = app.card("Subhan Allah")
@@ -113,7 +124,9 @@ final class OnboardingAndListTests: XCTestCase {
         // Long-press: reorder mode with ≡ handles and a Done button; "+" is hidden meanwhile.
         first.press(forDuration: 1.0)
         let done = app.buttons["list.doneReordering"]
-        XCTAssertTrue(done.waitForExistence(timeout: 5), "Reorder mode did not start")
+        let started = done.waitForExistence(timeout: 5)
+        screenshot(app, "05a-after-long-press")
+        XCTAssertTrue(started, "Reorder mode did not start")
         XCTAssertFalse(app.element("list.add").exists)
         let handles = app.buttons.matching(NSPredicate(format: "label BEGINSWITH[c] 'Reorder'"))
         XCTAssertGreaterThanOrEqual(handles.count, 3, "No reorder handles")

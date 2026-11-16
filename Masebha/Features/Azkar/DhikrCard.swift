@@ -7,6 +7,7 @@ struct DhikrCard: View {
     let now: Date
     let onEdit: () -> Void
     let onReset: () -> Void
+    let onReorder: () -> Void
     let onDelete: () -> Void
 
     var body: some View {
@@ -31,6 +32,7 @@ struct DhikrCard: View {
                 Menu {
                     Button(tr("common.edit"), systemImage: "pencil", action: onEdit)
                     Button(tr("common.reset"), systemImage: "arrow.counterclockwise", action: onReset)
+                    Button(tr("card.reorder"), systemImage: "arrow.up.arrow.down", action: onReorder)
                     Button(tr("common.delete"), systemImage: "trash", role: .destructive, action: onDelete)
                 } label: {
                     Image(systemName: "ellipsis")

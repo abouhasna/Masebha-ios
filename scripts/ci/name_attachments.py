@@ -1,8 +1,14 @@
 """Copies exported xcresult attachments to readable file names, using their manifest.json."""
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
+
+
+def safe(name):
+    # GitHub artifacts refuse " : < > | * ? and line breaks in file names.
+    return re.sub(r'["\:<>|*?\r\n]', "_", name)
 
 raw, dest = Path(sys.argv[1]), Path(sys.argv[2])
 dest.mkdir(parents=True, exist_ok=True)
@@ -25,7 +31,7 @@ def attachments(node):
 
 for item in attachments(json.loads(manifest.read_text())):
     source = raw / item["exportedFileName"]
-    name = item.get("suggestedHumanReadableName") or item["exportedFileName"]
+    name = safe(item.get("suggestedHumanReadableName") or item["exportedFileName"])
     if source.exists():
         shutil.copy2(source, dest / name)
         print(f"Screenshot: {name}")

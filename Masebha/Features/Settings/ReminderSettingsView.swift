@@ -21,11 +21,15 @@ struct ReminderSettingsView: View {
                 .settingsRowBackground()
                 .accessibilityIdentifier("reminder.enabled")
 
-                TextField(tr("app.name"), text: $title)
-                    .appFont(16, .regular)
-                    .foregroundStyle(.white)
-                    .settingsRowBackground()
-                    .accessibilityIdentifier("reminder.title")
+                HStack(spacing: 12) {
+                    Text(tr("reminder.title_hint")).appFont(16, .medium).foregroundStyle(.white)
+                    TextField(tr("app.name"), text: $title)   // empty = the app name, like Android
+                        .appFont(16, .regular)
+                        .foregroundStyle(.white)
+                        .multilineTextAlignment(.trailing)
+                        .accessibilityIdentifier("reminder.title")
+                }
+                .settingsRowBackground()
 
                 DatePicker(selection: $time, displayedComponents: .hourAndMinute) {
                     Text(tr("reminder.time")).appFont(16, .medium).foregroundStyle(.white)
@@ -33,8 +37,6 @@ struct ReminderSettingsView: View {
                 .environment(\.locale, Locale(identifier: "en_GB"))   // 24-hour clock, ASCII digits
                 .settingsRowBackground()
                 .accessibilityIdentifier("reminder.time")
-            } header: {
-                Text(tr("reminder.title_hint")).textCase(nil)
             } footer: {
                 Text(statusText)
                     .appFont(14, .regular)
