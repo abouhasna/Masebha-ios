@@ -56,6 +56,20 @@ Every leap ends with a CI build, automated tests, the owner's manual test checkl
 | **2: Supporter and data** | Purchases, the Support screen, the premium screen, feature gating, privacy policy, Wird, backup and restore (Android-compatible), TestFlight (needs the $99 account) |
 | **3: Online and release** | iOS popup and suggestions (Firestore REST), static welcome popup, promos, rating and sharing, the App Store listing, a full regression pass, and submission |
 
+## Implementation choices made in Leap 1
+
+These are small differences from Android, decided during the build. Each one is reversible.
+
+- **Native mirroring in Arabic.** Previous/Next, Total/Loops and the "+" button swap sides, as in native Arabic iOS apps. The ± buttons of the timer dialog stay left-to-right, because they show numbers.
+- **"Sound while timer runs in background" is not on iOS.** iOS has no background timer (decision Q2).
+- **Timer dialog "Cancel" discards the change.** On Android a cancelled change was kept by mistake.
+- **The "+" button is always visible.** The list gets extra space at the bottom so it never hides the last card; Android hid it while scrolling.
+- **Add/Edit is an iOS sheet with inline error messages**, instead of a dialog with toasts. The validation rules are the same.
+- **Counter reset is an iOS action sheet** with "Reset" / "Reset all" / "Cancel".
+- **A new tap sound**, synthesized by `scripts/sound/make_tap_sound.py`. The loop sound is Android's `dawra.wav`.
+- **Hijri month names are copied from Java's output**, so both apps print the same text. A test compares the iOS dates with Java's for 2020–2035.
+- **The reminder row shows the real iOS status**: off, the scheduled time, or notifications not allowed.
+
 ## Waiting on the owner
 
 - Android backup files to use as test fixtures (needed in Leap 2).

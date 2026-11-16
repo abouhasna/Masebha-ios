@@ -3,7 +3,7 @@ import Foundation
 /// Number formatting rules shared by every screen (≈ NumberFormatter.java on Android).
 nonisolated enum NumberText {
     // Guarded by `lock`: NumberFormatter is not thread-safe.
-    nonisolated(unsafe) private static let formatter: NumberFormatter = {
+    private static let formatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.numberStyle = .decimal

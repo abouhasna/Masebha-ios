@@ -56,10 +56,21 @@ Pure logic                    counter math, wird day rules, backup codec; no UI,
 ## Conventions
 
 - **Concurrency.** Swift 6 with default actor isolation `MainActor`: everything runs on the main thread unless it is marked `nonisolated`.
+  - Data and pure-logic types are `nonisolated`: `AppDatabase`, `DhikrStore`, records, `CounterState`, formatters.
+  - Avoid callback-based Apple APIs that call back on another thread (they can crash under Swift 6). Prefer `async` APIs.
+- **Data layer.** All SQL lives in the stores.
+  - Multi-row changes run in one transaction.
+  - Counts change by delta (`total = total + N`), never by writing a value held by a screen.
+  - Screens save first, then show the stored values.
+  - New schema means a new numbered migration ("v2"…); never edit an existing one.
 - **Strings.**
   - String Catalogs (`Localizable.xcstrings`), with Arabic as the source language.
-  - Semantic keys (`feature.thing`), each with both `ar` and `en` values.
+  - Semantic keys (`feature.thing`), each with both `ar` and `en` values. Read them with `tr("key")`, which follows the in-app language.
   - Never hard-code UI text.
+  - `scripts/ci/check_strings.py` (also run on CI) fails on a missing key or translation.
+- **UI tests.** They drive the real app through debug-only environment hooks (`UITestHooks` in `AppStartup.swift`): `UITEST_RESET`, `UITEST_LANGUAGE`, `UITEST_SUPPORTER`, `UITEST_SKIP_COACH`, `UITEST_DISABLE_ANIMATIONS`.
+  - Give tested elements an `accessibilityIdentifier`.
+  - Save screenshots as `XCTAttachment`s and look at them after each run.
 - **Digits** are ASCII everywhere, except the Hijri date in Arabic, which uses Arabic-Indic digits (as on Android).
 - **Display scope:** light mode forced, portrait only, iPhone only, iOS 17+.
 - **The repo is public: never commit secrets.** That means certificates, provisioning profiles, `.p8` keys, and `.env` files.

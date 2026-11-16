@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 /// A color stored the Android way: 0xAARRGGBB. Keeping this format makes backups compatible.
-nonisolated typealias ARGB = UInt32
+typealias ARGB = UInt32
 
 /// The 11 customizable colors. Raw values are the Android `ColorsPrefs` keys, kept identical
 /// so backup files can be shared between the two apps.
