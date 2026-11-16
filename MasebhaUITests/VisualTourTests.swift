@@ -107,38 +107,42 @@ final class VisualTourTests: XCTestCase {
     func testA4ArabicLongDhikr() throws {
         let app = launchApp(LaunchOptions(language: "ar", demoData: true))
         XCTAssertTrue(app.card("سبحان الله").waitForExistence(timeout: 10))
+        let medium = "سبحان الله وبحمده سبحان الله العظيم"
 
-        // "Scroll long dhikr" on (default): a 4-line window that scrolls, full-size ring.
+        // "Scroll long dhikr" on (default): long text gets a 4-line window at 16 pt; full-size ring.
         app.openCard(ayatAlKursi)
         screenshot(app, "A21-long-dhikr-scroll-mode")
         app.element("counter.textWindow").swipeUp()
         screenshot(app, "A22-long-dhikr-scroll-mode-text-scrolled")
         app.goBack()
 
-        // Biggest font: the window gets smaller, the ring stays at least its minimum size.
+        // Hardest case: biggest font + the extra "today" row. With scrolling on, the text window
+        // gives up space so the ring stays at (or above) its minimum size.
         app.openSettings(moreLabel: "المزيد")
         app.element("settings.fontSize").tap()
         app.tapItem("كبير جداً")
         app.tab("الأذكار")
-        app.openCard(ayatAlKursi)
-        screenshot(app, "A23-long-dhikr-huge-font")
+        app.openCard(medium)
+        app.buttons["counter.more"].tap()
+        app.tapItem("عدد اليوم")
+        XCTAssertTrue(app.element("counter.today").waitForExistence(timeout: 5))
+        screenshot(app, "A23-huge-font-today-row-scroll-mode")
         app.goBack()
-        app.openCard("سبحان الله وبحمده سبحان الله العظيم")
-        screenshot(app, "A24-medium-dhikr-huge-font")
+        app.openCard(ayatAlKursi)
+        screenshot(app, "A24-long-dhikr-huge-font-scroll-mode")
         app.goBack()
 
-        // "Scroll long dhikr" off: the text is shown in full; the page scrolls down to the ring.
+        // "Scroll long dhikr" off: the text is shown in full and the ring keeps its full size,
+        // so here it moves down; the page scrolls to it, and taps still count.
         app.tab("المزيد")
-        app.element("settings.fontSize").tap()
-        app.tapItem("متوسط")
         app.setSwitch("settings.scrollableText", on: false)
         app.tab("الأذكار")
-        app.openCard(ayatAlKursi)
-        screenshot(app, "A25-long-dhikr-no-scroll-top")
-        app.element("counter.page").swipeUp()
-        screenshot(app, "A26-long-dhikr-no-scroll-scrolled-down")
+        app.openCard(medium)
+        screenshot(app, "A25-huge-font-no-scroll-top")
+        app.element("counter.tapArea").swipeUp()
+        screenshot(app, "A26-huge-font-no-scroll-scrolled-down")
         app.count(3)
-        XCTAssertEqual(app.value("counter.total"), "10")   // demo total 7 + 3 taps: taps still count
+        XCTAssertEqual(app.value("counter.total"), "3")
     }
 
     @MainActor

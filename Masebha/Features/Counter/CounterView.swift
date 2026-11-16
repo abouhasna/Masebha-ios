@@ -130,9 +130,16 @@ struct CounterView: View {
                 Button(tr("counter.menu.reset"), systemImage: "arrow.counterclockwise") {
                     showResetDialog = true
                 }
-                Toggle(tr("counter.menu.vibration"), isOn: Bindable(settings).vibrateOnTap)
-                Toggle(tr("counter.menu.sound"), isOn: Bindable(settings).tapSound)
-                Toggle(tr("counter.menu.today"), isOn: Bindable(settings).showTodayCount)
+                // On/off items: iOS shows a ✓ when on.
+                Toggle(isOn: Bindable(settings).vibrateOnTap) {
+                    Label(tr("counter.menu.vibration"), systemImage: "iphone.radiowaves.left.and.right")
+                }
+                Toggle(isOn: Bindable(settings).tapSound) {
+                    Label(tr("counter.menu.sound"), systemImage: "speaker.wave.2")
+                }
+                Toggle(isOn: Bindable(settings).showTodayCount) {
+                    Label(tr("counter.menu.today"), systemImage: "calendar")
+                }
             } label: {
                 Image(systemName: "ellipsis")
                     .font(.system(size: 17, weight: .bold))
