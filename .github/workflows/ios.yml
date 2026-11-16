@@ -24,6 +24,9 @@ jobs:
       - name: Check out
         uses: actions/checkout@v7
 
+      - name: Check translations (every key in Arabic and English)
+        run: python3 -I scripts/ci/check_strings.py
+
       - name: Select Xcode 26
         run: bash scripts/ci/select-xcode.sh
 

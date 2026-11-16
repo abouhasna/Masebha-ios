@@ -1,0 +1,181 @@
+import SwiftUI
+
+/// The home screen: the user's adhkar as cards (≈ MainActivity + MyAdapter on Android).
+/// Tap a card to count, long-press and drag to reorder, ⋮ for edit / reset / delete.
+struct AzkarListView: View {
+    @Environment(AppEnvironment.self) private var environment
+    @Environment(\.scenePhase) private var scenePhase
+    let onOpen: (Int64) -> Void
+
+    @State private var items: [Dhikr] = []
+    @State private var now = Date()
+    @State private var editor: DhikrEditorMode?
+    @State private var pendingReset: Dhikr?
+    @State private var pendingDelete: Dhikr?
+    @State private var errorMessage: String?
+
+    var body: some View {
+        let palette = environment.palette
+        List {
+            ForEach(items) { item in
+                DhikrCard(dhikr: item, palette: palette, now: now,
+                          onEdit: { editor = .edit(item) },
+                          onReset: { pendingReset = item },
+                          onDelete: { pendingDelete = item })
+                    .contentShape(Rectangle())
+                    .onTapGesture { onOpen(item.id) }
+                    .listRowInsets(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+            }
+            .onMove(perform: move)
+        }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .contentMargins(.bottom, 88, for: .scrollContent)   // the last card is never hidden by "+"
+        .background(ThemedBackground(color: palette.background, pattern: environment.showsPattern))
+        .overlay {
+            if items.isEmpty {
+                Text(tr("list.empty"))
+                    .appFont(17, .regular)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(Color(argb: ColorMath.isLight(palette.background) ? 0xFF1E_1E1E : 0xFFFF_FFFF))
+                    .opacity(0.7)
+                    .padding(40)
+            }
+        }
+        .overlay(alignment: .bottomTrailing) {
+            addButton(palette)
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                HijriHeader(color: palette.toolsAccent, offset: environment.settings.hijriOffset,
+                            language: environment.settings.language, now: now)
+            }
+        }
+        .themedNavigationBar(palette.tools)
+        .sheet(item: $editor) { mode in
+            DhikrEditorSheet(mode: mode) { output in
+                try save(output, mode: mode)
+            }
+            .appLanguageAndFont(environment)
+        }
+        .alert(tr("common.reset"), isPresented: isPresented($pendingReset), presenting: pendingReset) { item in
+            Button(tr("common.reset"), role: .destructive) { reset(item) }
+            Button(tr("common.cancel"), role: .cancel) {}
+        } message: { _ in
+            Text(tr("list.reset.message"))
+        }
+        .alert(tr("common.delete"), isPresented: isPresented($pendingDelete), presenting: pendingDelete) { item in
+            Button(tr("common.delete"), role: .destructive) { delete(item) }
+            Button(tr("common.cancel"), role: .cancel) {}
+        } message: { _ in
+            Text(tr("list.delete.message"))
+        }
+        .alert(tr("error.title"), isPresented: isPresented($errorMessage)) {
+            Button(tr("common.ok"), role: .cancel) {}
+        } message: {
+            Text(errorMessage ?? "")
+        }
+        .onAppear(perform: reload)
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { reload() }
+        }
+    }
+
+    private func addButton(_ palette: ThemePalette) -> some View {
+        Button {
+            editor = .add
+        } label: {
+            Image(systemName: "plus")
+                .font(.system(size: 28, weight: .regular))
+                .foregroundStyle(Color(argb: ColorMath.readableIcon(accent: palette.toolsAccent, on: palette.tools)))
+                .frame(width: 60, height: 60)
+                .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Color(argb: palette.tools)))
+                .shadow(color: .black.opacity(0.3), radius: 6, y: 3)
+        }
+        .buttonStyle(.plain)
+        .padding(.trailing, 20)
+        .padding(.bottom, 16)
+        .accessibilityLabel(tr("list.add"))
+        .accessibilityIdentifier("list.add")
+    }
+
+    // MARK: Actions
+
+    private func reload() {
+        now = Date()
+        do {
+            items = try environment.store.allDhikr()
+        } catch {
+            errorMessage = tr("error.load")
+        }
+    }
+
+    private func save(_ output: DhikrForm.Output, mode: DhikrEditorMode) throws {
+        switch mode {
+        case .add:
+            _ = try environment.store.add(name: output.name, loopSize: output.loopSize, initialTotal: output.total)
+        case .edit(let dhikr):
+            try environment.store.update(id: dhikr.id, name: output.name, loopSize: output.loopSize, total: output.total)
+        }
+        reload()
+    }
+
+    private func reset(_ item: Dhikr) {
+        do {
+            try environment.store.resetCount(of: item.id, day: DayKey.today())
+        } catch {
+            errorMessage = tr("error.save")
+        }
+        reload()
+    }
+
+    private func delete(_ item: Dhikr) {
+        do {
+            try environment.store.delete(id: item.id)
+        } catch {
+            errorMessage = tr("error.save")
+        }
+        reload()
+    }
+
+    private func move(from source: IndexSet, to destination: Int) {
+        var reordered = items
+        reordered.move(fromOffsets: source, toOffset: destination)
+        items = reordered
+        do {
+            try environment.store.reorder(reordered.map(\.id))
+        } catch {
+            errorMessage = tr("error.save")
+        }
+        reload()
+    }
+}
+
+/// Turns an optional into the Bool binding an alert needs.
+func isPresented<T>(_ value: Binding<T?>) -> Binding<Bool> {
+    Binding(get: { value.wrappedValue != nil }, set: { if !$0 { value.wrappedValue = nil } })
+}
+
+/// Weekday and Hijri date in the toolbar (≈ the Android toolbar header).
+struct HijriHeader: View {
+    let color: ARGB
+    let offset: Int
+    let language: AppLanguage
+    let now: Date
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(HijriDate.weekday(for: now, language: language))
+                .appFont(13, .medium)
+                .opacity(0.9)
+            Text(HijriDate.text(for: now, offsetDays: offset, language: language))
+                .appFont(17, .bold)
+                .accessibilityIdentifier("list.hijriDate")
+        }
+        .foregroundStyle(Color(argb: color))
+        .fixedSize()
+    }
+}

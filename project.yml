@@ -11,6 +11,13 @@ options:
   developmentLanguage: ar
   createIntermediateGroups: true
 
+packages:
+  # SQLite toolkit (the only third-party library in the app). Pinned to an exact,
+  # well-tested release so the database layer never changes underneath us.
+  GRDB:
+    url: https://github.com/groue/GRDB.swift
+    exactVersion: 7.11.1
+
 settings:
   base:
     MARKETING_VERSION: "0.1.0"        # ≈ versionName
@@ -26,6 +33,8 @@ targets:
       - path: Masebha
         excludes:
           - Info.plist   # referenced by INFOPLIST_FILE, must not be copied as a resource
+    dependencies:
+      - package: GRDB
     settings:
       base:
         PRODUCT_NAME: Masebha

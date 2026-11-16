@@ -1,11 +1,19 @@
 import SwiftUI
 
-/// App entry point (≈ the Application class + launcher Activity on Android).
+/// App entry point (≈ the launcher Activity on Android).
 @main
 struct MasebhaApp: App {
+    @State private var startup = AppStartup.makeEnvironment()
+
     var body: some Scene {
         WindowGroup {
-            PipelineCheckView()
+            switch startup {
+            case .success(let environment):
+                RootView()
+                    .environment(environment)
+            case .failure(let error):
+                StartupErrorView(error: error)
+            }
         }
     }
 }

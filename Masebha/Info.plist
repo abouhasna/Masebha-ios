@@ -29,6 +29,38 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>cairo_bold.ttf</string>
+		<string>cairo_extralight.ttf</string>
+		<string>cairo_light.ttf</string>
+		<string>cairo_medium.ttf</string>
+		<string>cairo_regular.ttf</string>
+		<string>handjet_bold.ttf</string>
+		<string>handjet_extralight.ttf</string>
+		<string>handjet_light.ttf</string>
+		<string>handjet_medium.ttf</string>
+		<string>handjet_regular.ttf</string>
+		<string>ibmplexsansarabic_bold.ttf</string>
+		<string>ibmplexsansarabic_extralight.ttf</string>
+		<string>ibmplexsansarabic_light.ttf</string>
+		<string>ibmplexsansarabic_medium.ttf</string>
+		<string>ibmplexsansarabic_regular.ttf</string>
+		<string>playpensansarabic_bold.ttf</string>
+		<string>playpensansarabic_extralight.ttf</string>
+		<string>playpensansarabic_light.ttf</string>
+		<string>playpensansarabic_medium.ttf</string>
+		<string>playpensansarabic_regular.ttf</string>
+		<string>reemkufi_bold.ttf</string>
+		<string>reemkufi_medium.ttf</string>
+		<string>reemkufi_regular.ttf</string>
+		<string>reemkufi_semibold.ttf</string>
+		<string>tajawal_bold.ttf</string>
+		<string>tajawal_extralight.ttf</string>
+		<string>tajawal_light.ttf</string>
+		<string>tajawal_medium.ttf</string>
+		<string>tajawal_regular.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
