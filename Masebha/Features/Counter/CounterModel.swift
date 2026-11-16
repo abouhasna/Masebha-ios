@@ -175,7 +175,7 @@ final class CounterModel {
     }
 
     private func refreshNeighbors() {
-        let neighbors = (try? store.neighbors(of: dhikr.id)) ?? (nil, nil)
+        let neighbors: (previous: Int64?, next: Int64?) = (try? store.neighbors(of: dhikr.id)) ?? (nil, nil)
         previousID = neighbors.previous
         nextID = neighbors.next
     }
