@@ -18,7 +18,7 @@ struct CounterBody: View {
                     statistics
                     // The ring takes the space that is left, so it never overlaps the buttons below.
                     GeometryReader { space in
-                        ring(diameter: max(120, min(space.size.width - 72, space.size.height - 32, 340)))
+                        ring(diameter: max(80, min(space.size.width - 72, space.size.height - 32, 340)))
                             .frame(width: space.size.width, height: space.size.height)
                     }
                 }

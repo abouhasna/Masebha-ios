@@ -213,7 +213,7 @@ struct CounterView: View {
             .accessibilityIdentifier(id)
         } else {
             // Keeps the place of the missing button (like Android's INVISIBLE), with nothing to tap.
-            Color.clear.frame(maxWidth: .infinity, minHeight: 44)
+            Color.clear.frame(maxWidth: .infinity).frame(height: 44)
         }
     }
 }

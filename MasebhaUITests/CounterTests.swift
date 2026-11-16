@@ -103,7 +103,10 @@ final class CounterTests: XCTestCase {
         let app = launchApp()
         app.openCard("Subhan Allah")   // first in the list: no "Previous"
         XCTAssertFalse(app.element("counter.previous").exists)
-        app.element("counter.next").tap()
+        // The bar sits at the bottom of the screen (a missing button must not change the layout).
+        let next = app.element("counter.next")
+        XCTAssertGreaterThan(next.frame.maxY, app.frame.height - 140, "Previous/next bar is not at the bottom")
+        next.tap()
         XCTAssertTrue(app.text("Alhamdulillah").waitForExistence(timeout: 5))
         app.element("counter.previous").tap()
         XCTAssertTrue(app.text("Subhan Allah").waitForExistence(timeout: 5))
