@@ -30,3 +30,6 @@ Thumbs.db
 *.mobileprovision
 *.p8
 .env
+
+# Local copy of the latest CI screenshots (scripts/latest-screenshots.ps1)
+latest-screenshots/

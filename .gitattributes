@@ -10,3 +10,4 @@
 *.wav binary
 *.caf binary
 *.ipa binary
+*.bat text eol=crlf
