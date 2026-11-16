@@ -11,12 +11,15 @@ $root = Split-Path -Parent $PSScriptRoot
 $dest = Join-Path $root 'latest-screenshots'
 
 # The newest finished run that produced test results (a run that failed to build has none).
-$runs = & $gh run list -R $repo --branch main --status completed --limit 10 --json databaseId,conclusion,displayTitle,createdAt | ConvertFrom-Json
+# (GitHub's server-side "completed" filter lags behind, so filter here.)
+$runs = & $gh run list -R $repo --branch main --limit 10 --json databaseId,status,conclusion,displayTitle,createdAt | ConvertFrom-Json
 $downloaded = $null
-foreach ($run in $runs) {
+foreach ($run in $runs | Where-Object { $_.status -eq 'completed' -and $_.conclusion -in 'success', 'failure' }) {
     $tmp = Join-Path $env:TEMP "masebha-results-$($run.databaseId)"
     if (Test-Path $tmp) { Remove-Item -Recurse -Force $tmp }
+    $ErrorActionPreference = 'Continue'   # gh writes "no artifacts" to stderr; just try the next run
     & $gh run download $run.databaseId -R $repo -n test-results -D $tmp 2>$null
+    $ErrorActionPreference = 'Stop'
     if ($LASTEXITCODE -eq 0 -and (Test-Path (Join-Path $tmp 'screenshots'))) { $downloaded = $run; break }
 }
 if (-not $downloaded) { Write-Host 'No finished run with screenshots was found.'; exit 1 }
