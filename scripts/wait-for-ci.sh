@@ -20,7 +20,13 @@ if [[ -z "$run_id" ]]; then
 fi
 
 echo "Run $run_id for $SHA"
-"$GH" run watch "$run_id" -R "$REPO" --interval 30 >/dev/null 2>&1
+# `gh run watch` can return early (network hiccup), so poll until the run is really completed.
+while true; do
+  "$GH" run watch "$run_id" -R "$REPO" --interval 30 >/dev/null 2>&1
+  status="$("$GH" run view "$run_id" -R "$REPO" --json status --jq .status 2>/dev/null)"
+  [[ "$status" == "completed" ]] && break
+  sleep 30
+done
 conclusion="$("$GH" run view "$run_id" -R "$REPO" --json conclusion --jq .conclusion)"
 echo "Conclusion: $conclusion"
 [[ "$conclusion" == "success" ]]

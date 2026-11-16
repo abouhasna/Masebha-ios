@@ -32,6 +32,8 @@ struct CounterBody: View {
                         .scrollBounceBehavior(.basedOnSize)
                         .padding(.horizontal, 16)
                         .padding(.top, CounterLayout.textTopPadding)
+                        // A container with its own id: the text inside keeps "counter.dhikrText".
+                        .accessibilityElement(children: .contain)
                         .accessibilityIdentifier("counter.textWindow")
                     statistics
                     Spacer(minLength: CounterLayout.ringVerticalPadding)
@@ -53,6 +55,7 @@ struct CounterBody: View {
                     .frame(minHeight: geometry.size.height)
                 }
                 .scrollBounceBehavior(.basedOnSize)
+                .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("counter.page")
             }
         }
@@ -132,7 +135,6 @@ struct CounterBody: View {
         ProgressRing(current: model.state.current, loopSize: model.state.loopSize, palette: palette,
                      numberSize: currentSize)
             .frame(width: diameter, height: diameter)
-            .accessibilityIdentifier("counter.ring")
     }
 }
 
