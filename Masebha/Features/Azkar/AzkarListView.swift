@@ -41,6 +41,8 @@ struct AzkarListView: View {
         }
         .listStyle(.plain)
         .environment(\.editMode, $editMode)
+        // System parts of the list (the ≡ reorder handles) follow the background: light on dark themes.
+        .environment(\.colorScheme, ColorMath.isLight(palette.background) ? .light : .dark)
         .scrollContentBackground(.hidden)
         .contentMargins(.bottom, 88, for: .scrollContent)   // the last card is never hidden by "+"
         .background(ThemedBackground(color: palette.background, pattern: environment.showsPattern))
@@ -63,7 +65,6 @@ struct AzkarListView: View {
             ToolbarItem(placement: .principal) {
                 HijriHeader(color: palette.toolsAccent, offset: environment.settings.hijriOffset,
                             language: environment.settings.language, now: now)
-                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             if editMode.isEditing {
                 ToolbarItem(placement: .confirmationAction) {
@@ -194,7 +195,7 @@ struct HijriHeader: View {
     let now: Date
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .center, spacing: 0) {
             Text(HijriDate.weekday(for: now, language: language))
                 .appFont(13, .medium)
                 .opacity(0.9)

@@ -16,7 +16,6 @@ final class CounterTests: XCTestCase {
         XCTAssertEqual(app.value("counter.current"), "2")
         XCTAssertEqual(app.value("counter.loops"), "1")
         XCTAssertEqual(app.value("counter.total"), "35")
-        screenshot(app, "10-counter-english")
 
         // Undo steps back; past 0 it rolls back the completed loop.
         app.element("counter.undo").tap()
@@ -50,7 +49,6 @@ final class CounterTests: XCTestCase {
         app.openCard("Alhamdulillah")
         app.count(5)
         openResetDialog(app)
-        screenshot(app, "11-reset-dialog")
         app.buttons["Reset"].firstMatch.tap()
         XCTAssertEqual(app.value("counter.total"), "0")
 
@@ -95,7 +93,6 @@ final class CounterTests: XCTestCase {
         XCTAssertTrue(app.element("counter.today").waitForExistence(timeout: 5))
         XCTAssertEqual(app.value("counter.today"), "40")
         XCTAssertEqual(app.value("counter.session"), "7")
-        screenshot(app, "12-today-and-session")
     }
 
     @MainActor
@@ -137,7 +134,6 @@ final class CounterTests: XCTestCase {
         app.openCard("Subhan Allah")
         let coach = app.element("counter.coachMark")
         XCTAssertTrue(coach.waitForExistence(timeout: 5))
-        screenshot(app, "13-coach-mark")
         coach.tap()
         XCTAssertFalse(coach.waitForExistence(timeout: 1))
         XCTAssertEqual(app.value("counter.current"), "0")
@@ -153,7 +149,6 @@ final class CounterTests: XCTestCase {
         app.element("counter.power").tap()
         XCTAssertTrue(app.element("counter.powerClose").waitForExistence(timeout: 5))
         app.count(3)
-        screenshot(app, "14-power-mode")
         app.element("counter.powerClose").tap()
         XCTAssertEqual(app.value("counter.current"), "3")
         XCTAssertTrue(app.buttons["counter.timer"].exists)
@@ -169,7 +164,6 @@ final class CounterTests: XCTestCase {
         XCTAssertEqual(app.value("timer.value"), "1.0")
         for _ in 0..<5 { app.element("timer.minusTenth").tap() }
         XCTAssertEqual(app.value("timer.value"), "0.5")
-        screenshot(app, "15-timer-dialog")
         app.buttons["timer.start"].tap()
 
         let timer = app.buttons["counter.timer"]

@@ -11,14 +11,12 @@ final class OnboardingAndListTests: XCTestCase {
         let app = launchApp(LaunchOptions(language: nil))
         let arabic = app.element("language.arabic")
         XCTAssertTrue(arabic.waitForExistence(timeout: 10))
-        screenshot(app, "01-language-picker")
         arabic.tap()
 
         XCTAssertTrue(app.card("سبحان الله").waitForExistence(timeout: 10))
         XCTAssertEqual(app.cardTotal("سبحان الله"), "0")
         XCTAssertTrue(app.text("لم يُفتح بعد").exists)
         XCTAssertTrue(app.tabBars.buttons["الأذكار"].exists)
-        screenshot(app, "02-list-arabic")
         for name in ["الحمد لله", "الله أكبر", "اللهم صل على محمد", "أستغفر الله", "لا إله إلا الله",
                      "سبحان الله وبحمده سبحان الله العظيم"] {
             XCTAssertTrue(app.hasCard(name), "Missing starter dhikr: \(name)")
@@ -39,7 +37,6 @@ final class OnboardingAndListTests: XCTestCase {
         XCTAssertTrue(app.card("Subhan Allah").waitForExistence(timeout: 10))
         XCTAssertTrue(app.card("Astaghfirullah").exists)
         XCTAssertTrue(app.tabBars.buttons["Azkar"].exists)
-        screenshot(app, "03-list-english")
     }
 
     @MainActor
@@ -68,7 +65,6 @@ final class OnboardingAndListTests: XCTestCase {
         let total = app.textFields["editor.total"]
         total.tap()
         total.typeText("5")
-        screenshot(app, "04-add-dhikr")
         save.tap()
 
         XCTAssertTrue(app.hasCard("Test dhikr"))
@@ -120,7 +116,6 @@ final class OnboardingAndListTests: XCTestCase {
         XCTAssertFalse(app.element("list.add").exists)   // "+" hidden while reordering
         let handles = app.buttons.matching(NSPredicate(format: "label BEGINSWITH[c] 'Reorder'"))
         XCTAssertGreaterThanOrEqual(handles.count, 3, "No reorder handles")
-        screenshot(app, "05-reorder-mode")
 
         handles.element(boundBy: 0).press(forDuration: 0.6, thenDragTo: handles.element(boundBy: 2),
                                           withVelocity: .slow, thenHoldForDuration: 0.5)
@@ -151,7 +146,6 @@ final class OnboardingAndListTests: XCTestCase {
                                               withVelocity: .slow, thenHoldForDuration: 0.5)
             done.tap()
         }
-        screenshot(app, "06-after-long-press-drag")
         XCTAssertNotEqual(cardNames(app).first, "Subhan Allah", "Order did not change: \(cardNames(app))")
         let order = cardNames(app)
 

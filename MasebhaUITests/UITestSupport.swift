@@ -6,6 +6,7 @@ struct LaunchOptions {
     var language: String? = "en"
     var supporter = false
     var skipCoachMark = true
+    var demoData = false
 }
 
 extension XCTestCase {
@@ -18,6 +19,7 @@ extension XCTestCase {
         if let language = options.language { app.launchEnvironment["UITEST_LANGUAGE"] = language }
         if options.supporter { app.launchEnvironment["UITEST_SUPPORTER"] = "1" }
         if options.skipCoachMark { app.launchEnvironment["UITEST_SKIP_COACH"] = "1" }
+        if options.demoData { app.launchEnvironment["UITEST_DEMO_DATA"] = "1" }
         app.launch()
         return app
     }
@@ -106,8 +108,28 @@ extension XCUIApplication {
         element(identifier).label
     }
 
+    /// Taps the navigation bar's back button (works in English and Arabic).
     func goBack() {
-        navigationBars.buttons.element(boundBy: 0).tap()
+        let back = navigationBars.buttons.matching(
+            NSPredicate(format: "identifier == 'BackButton' OR label IN {'Back', 'رجوع', 'السابق'}")).firstMatch
+        (back.exists ? back : navigationBars.buttons.element(boundBy: 0)).tap()
+    }
+
+    /// Taps a menu item / dialog button by its visible text.
+    func tapItem(_ label: String) {
+        let item = buttons[label].firstMatch
+        XCTAssertTrue(item.waitForExistence(timeout: 5), "Item \(label) not found")
+        item.tap()
+    }
+
+    /// Closes a popover-style dialog (iOS 26 shows some dialogs as popovers without a Cancel button).
+    func dismissPopover(cancelLabel: String) {
+        let region = otherElements["PopoverDismissRegion"].firstMatch
+        if region.exists {
+            region.tap()
+        } else if buttons[cancelLabel].exists {
+            buttons[cancelLabel].firstMatch.tap()
+        }
     }
 
     func tab(_ label: String) {

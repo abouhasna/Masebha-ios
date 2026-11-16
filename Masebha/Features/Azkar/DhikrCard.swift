@@ -23,11 +23,13 @@ struct DhikrCard: View {
                     .opacity(0.9)
                     .accessibilityIdentifier("card.total")
             }
-            VStack(spacing: 0) {
+            // Both pinned to the card's edge: the ⋮ stays in the same place whatever the label says.
+            VStack(alignment: .trailing, spacing: 0) {
                 Text(lastOpenedText)
                     .appFont(12, .light)
                     .opacity(0.75)
                     .lineLimit(1)
+                    .padding(.trailing, 8)
                     .accessibilityIdentifier("card.lastOpened")
                 Menu {
                     Button(tr("common.edit"), systemImage: "pencil", action: onEdit)
