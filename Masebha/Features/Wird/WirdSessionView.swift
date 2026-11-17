@@ -58,6 +58,7 @@ struct WirdSessionView: View {
         ZStack {
             ThemedBackground(color: palette.counterBackground, pattern: environment.showsPattern)
             VStack(spacing: 0) {
+                progressBar(model, palette: palette)
                 Group {
                     if let item = model.current {
                         DhikrStage(text: item.body, fontSize: CGFloat(settings.fontSize), textColor: palette.counterText,
@@ -136,7 +137,25 @@ struct WirdSessionView: View {
 
     // MARK: Parts
 
-    /// The wird's name, its overall progress, and the position of the zikr on screen.
+    /// Progress of the whole wird, above the zikr (fills from the start side: right in Arabic).
+    private func progressBar(_ model: WirdSessionModel, palette: ThemePalette) -> some View {
+        GeometryReader { geometry in
+            ZStack(alignment: .leading) {
+                Capsule().fill(Color(argb: palette.counterText).opacity(0.18))
+                Capsule().fill(Color(argb: palette.ring))
+                    .frame(width: geometry.size.width * min(1, max(0, model.progress)))
+            }
+        }
+        .frame(height: Self.barHeight)
+        .padding(.horizontal, 24)
+        .padding(.top, 14)
+        .accessibilityElement()
+        .accessibilityLabel(tr("wird.a11y.progress"))
+        .accessibilityValue("\(Int((model.progress * 100).rounded()))%")
+        .accessibilityIdentifier("wird.session.progress")
+    }
+
+    /// The wird's name and the position of the zikr on screen (under the zikr).
     private func header(_ model: WirdSessionModel, palette: ThemePalette) -> some View {
         let color = Color(argb: palette.counterText)
         let font = Font.custom(family.postScriptName(.medium), fixedSize: Self.labelSize)
@@ -145,16 +164,6 @@ struct WirdSessionView: View {
                 .font(font)
                 .lineLimit(1)
                 .accessibilityIdentifier("wird.session.name")
-            GeometryReader { geometry in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(color.opacity(0.18))
-                    Capsule().fill(Color(argb: palette.ring))
-                        .frame(width: geometry.size.width * min(1, max(0, model.progress)))
-                }
-            }
-            .frame(height: Self.barHeight)
-            .padding(.horizontal, 32)
-            .accessibilityHidden(true)
             HStack(spacing: 8) {
                 Text(verbatim: "\(model.index + 1) / \(model.items.count)")
                     .accessibilityIdentifier("wird.session.position")
@@ -172,7 +181,7 @@ struct WirdSessionView: View {
     private var headerHeight: CGFloat {
         let line = (UIFont(name: family.postScriptName(.medium), size: Self.labelSize)
             ?? .systemFont(ofSize: Self.labelSize)).lineHeight
-        return Self.headerTopPadding + line + Self.headerSpacing + Self.barHeight + Self.headerSpacing + line
+        return Self.headerTopPadding + line + Self.headerSpacing + line
     }
 
     private func completedMessage(_ palette: ThemePalette) -> some View {
@@ -202,7 +211,8 @@ struct WirdSessionView: View {
             PillDivider(color: icon)
             PillButton(symbol: "moon.fill", label: tr("counter.a11y.power"), id: "counter.power") { powerMode = true }
             PillDivider(color: icon)
-            PillButton(symbol: "forward.end.fill", label: tr("wird.skip"), id: "wird.skip") { model.skip() }
+            PillButton(symbol: "forward.end.fill", label: tr("wird.skip"), id: "wird.skip",
+                       mirrorsInRightToLeft: true) { model.skip() }
             PillDivider(color: icon)
             Menu {
                 Button(tr("counter.menu.edit_timer"), systemImage: "timer") {

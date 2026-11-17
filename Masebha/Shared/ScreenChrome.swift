@@ -38,11 +38,14 @@ struct PillButton: View {
     let symbol: String
     let label: String
     let id: String
+    /// Points the other way in Arabic (e.g. "skip": forward is to the left in right-to-left).
+    var mirrorsInRightToLeft = false
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             Image(systemName: symbol)
+                .flipsForRightToLeftLayoutDirection(mirrorsInRightToLeft)
                 .font(.system(size: 17, weight: .semibold))
                 .frame(width: 40, height: 34)
                 .contentShape(Rectangle())

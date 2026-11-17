@@ -5,18 +5,6 @@ enum SupportStyle {
     static let gold: ARGB = 0xFFF5_C542
 }
 
-/// Links required next to the purchase buttons (App Store rules for subscriptions).
-enum AppLinks {
-    /// Apple's standard Terms of Use (EULA).
-    static let terms = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!
-    /// The privacy policy on the app's website, in the app's language.
-    static var privacy: URL {
-        Localizer.shared.language == .english
-            ? URL(string: "https://tasbeeh-app.pages.dev/en/privacy/")!
-            : URL(string: "https://tasbeeh-app.pages.dev/privacy/")!
-    }
-    static let contact = URL(string: "mailto:masebha0@gmail.com")!
-}
 
 /// "Support the app" (≈ SupportActivity): what supporters get, the two ways to support with
 /// live App Store prices, restore, manage the subscription, and contact.

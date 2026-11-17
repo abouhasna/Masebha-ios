@@ -2,10 +2,6 @@
 
 Prefers the newest iOS runtime not newer than the SDK, then a plain model
 ("iPhone 17") over Pro/Max/Plus variants, because it is closest to a typical user's phone.
-
-Runtimes with a known StoreKit Test bug are avoided when another one is available:
-iOS 26.5 does not serve the local test store to SKTestSession (Apple FB22500243), so the
-purchase tests cannot run there.
 """
 import json
 import re
@@ -32,12 +28,8 @@ if not candidates:
     print("No available iPhone simulator found", file=sys.stderr)
     sys.exit(1)
 
-AVOID = {(26, 5)}
-
 runtimes = sorted({c[0] for c in candidates}, reverse=True)
 print("Available iOS runtimes: " + ", ".join(f"{v[0]}.{v[1]}" for v in runtimes), file=sys.stderr)
-if any(c[0] not in AVOID for c in candidates):
-    candidates = [c for c in candidates if c[0] not in AVOID]
 
 candidates.sort(key=lambda c: (c[0], c[1]), reverse=True)
 version, _, name, udid = candidates[0]

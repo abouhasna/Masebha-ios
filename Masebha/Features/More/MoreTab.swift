@@ -64,9 +64,17 @@ struct MoreView: View {
             }
 
             Section {
-                link(tr("more.youtube"), icon: "play.rectangle.fill",
-                     url: "https://youtube.com/shorts/V6j_zEb3h5w?si=lzXx3qbB7xV1i3bw")
-                link(tr("more.telegram"), icon: "paperplane.fill", url: "https://t.me/nafiapp")
+                link(tr("more.suggest"), subtitle: tr("more.suggest.summary"), icon: "lightbulb.fill",
+                     url: AppLinks.suggestions, id: "more.suggest")
+                link(tr("more.contact"), subtitle: AppLinks.email, icon: "envelope.fill",
+                     url: AppLinks.contact, id: "more.contact")
+            } header: {
+                Text(tr("more.feedback"))
+            }
+
+            Section {
+                link(tr("more.youtube"), icon: "play.rectangle.fill", url: AppLinks.youtube, id: "more.youtube")
+                link(tr("more.telegram"), icon: "paperplane.fill", url: AppLinks.telegram, id: "more.telegram")
             } header: {
                 Text(tr("more.follow"))
             }
@@ -89,11 +97,12 @@ struct MoreView: View {
         .onAppear(perform: reload)
     }
 
-    private func link(_ title: String, icon: String, url: String) -> some View {
-        Link(destination: URL(string: url)!) {
-            SettingsRowLabel(icon: icon, title: title)
+    private func link(_ title: String, subtitle: String? = nil, icon: String, url: URL, id: String) -> some View {
+        Link(destination: url) {
+            SettingsRowLabel(icon: icon, title: title, subtitle: subtitle)
         }
         .settingsRowBackground()
+        .accessibilityIdentifier(id)
     }
 
     private func reload() {
