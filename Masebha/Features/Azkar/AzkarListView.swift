@@ -58,7 +58,7 @@ struct AzkarListView: View {
             if !reordering { addButton(palette) }
         }
         .safeAreaInset(edge: .top, spacing: 0) {
-            if reordering { reorderHint(palette) }
+            if reordering { reorderBar(palette) }
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -67,26 +67,6 @@ struct AzkarListView: View {
                 HijriHeader(color: ColorMath.readableIcon(accent: palette.toolsAccent, on: palette.tools),
                             offset: environment.settings.hijriOffset,
                             language: environment.settings.language, now: now)
-            }
-            if reordering {
-                // Plain button with its own text color, like the counter's toolbar pill: iOS 26
-                // fills a standard bar button with the tint (white here), which made the white
-                // text unreadable on light themes.
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        withAnimation { reordering = false }
-                    } label: {
-                        Text(tr("common.done"))
-                            .appFont(17, .bold)
-                            .foregroundStyle(Color(argb: ColorMath.readableIcon(accent: palette.toolsAccent,
-                                                                                on: palette.tools)))
-                            .padding(.horizontal, 10)
-                            .frame(minHeight: 34)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("list.doneReordering")
-                }
             }
         }
         .themedNavigationBar(palette.tools)
@@ -137,17 +117,34 @@ struct AzkarListView: View {
         .accessibilityIdentifier("list.add")
     }
 
-    /// Under the toolbar, in its colors, while reorder mode is on.
-    private func reorderHint(_ palette: ThemePalette) -> some View {
-        Text(tr("list.reorder.hint"))
-            .appFont(14, .medium)
-            .multilineTextAlignment(.center)
-            .foregroundStyle(Color(argb: ColorMath.readableIcon(accent: palette.toolsAccent, on: palette.tools)))
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .frame(maxWidth: .infinity)
-            .background(Color(argb: palette.tools))
-            .accessibilityIdentifier("list.reorderHint")
+    /// Under the toolbar, in its colors, while reorder mode is on: the hint and "Done".
+    /// "Done" is here rather than in the toolbar: iOS 26 drew it there as a pale glass capsule
+    /// with white text on some themes. Here its contrast is ours to guarantee.
+    private func reorderBar(_ palette: ThemePalette) -> some View {
+        let color = Color(argb: ColorMath.readableIcon(accent: palette.toolsAccent, on: palette.tools))
+        return HStack(spacing: 12) {
+            Text(tr("list.reorder.hint"))
+                .appFont(14, .medium)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityIdentifier("list.reorderHint")
+            Button {
+                withAnimation { reordering = false }
+            } label: {
+                Text(tr("common.done"))
+                    .appFont(16, .bold)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 7)
+                    .background(Capsule().fill(color.opacity(0.18)))
+                    .overlay(Capsule().stroke(color.opacity(0.45), lineWidth: 1))
+                    .contentShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("list.doneReordering")
+        }
+        .foregroundStyle(color)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Color(argb: palette.tools))
     }
 
     // MARK: Actions
