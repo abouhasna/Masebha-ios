@@ -17,8 +17,8 @@ struct WirdSessionView: View {
     @State private var showResetDialog = false
     @State private var powerMode = false
 
-    private static let headerTopPadding: CGFloat = 20
-    private static let headerSpacing: CGFloat = 10
+    private static let headerTopPadding: CGFloat = 14
+    private static let headerSpacing: CGFloat = 8
     private static let barHeight: CGFloat = 6
     private static let labelSize: CGFloat = 15
 
@@ -58,12 +58,12 @@ struct WirdSessionView: View {
         ZStack {
             ThemedBackground(color: palette.counterBackground, pattern: environment.showsPattern)
             VStack(spacing: 0) {
-                progressBar(model, palette: palette)
-                Group {
+                VStack(spacing: 0) {
+                    header(model, palette: palette)
                     if let item = model.current {
                         DhikrStage(text: item.body, fontSize: CGFloat(settings.fontSize), textColor: palette.counterText,
-                                   statsHeight: headerHeight) {
-                            header(model, palette: palette)
+                                   statsHeight: 0) {
+                            EmptyView()
                         } ring: {
                             ProgressRing(progress: Double(item.count) / Double(max(1, item.target)),
                                          number: NumberText.grouped(item.count),
@@ -137,29 +137,25 @@ struct WirdSessionView: View {
 
     // MARK: Parts
 
-    /// Progress of the whole wird, above the zikr (fills from the start side: right in Arabic).
-    private func progressBar(_ model: WirdSessionModel, palette: ThemePalette) -> some View {
-        GeometryReader { geometry in
-            ZStack(alignment: .leading) {
-                Capsule().fill(Color(argb: palette.counterText).opacity(0.18))
-                Capsule().fill(Color(argb: palette.ring))
-                    .frame(width: geometry.size.width * min(1, max(0, model.progress)))
-            }
-        }
-        .frame(height: Self.barHeight)
-        .padding(.horizontal, 24)
-        .padding(.top, 14)
-        .accessibilityElement()
-        .accessibilityLabel(tr("wird.a11y.progress"))
-        .accessibilityValue("\(Int((model.progress * 100).rounded()))%")
-        .accessibilityIdentifier("wird.session.progress")
-    }
-
-    /// The wird's name and the position of the zikr on screen (under the zikr).
+    /// Above the zikr: the progress of the whole wird (it fills from the start side, the right
+    /// in Arabic), the wird's name, and the position of the zikr on screen. Taps here count too.
     private func header(_ model: WirdSessionModel, palette: ThemePalette) -> some View {
         let color = Color(argb: palette.counterText)
         let font = Font.custom(family.postScriptName(.medium), fixedSize: Self.labelSize)
         return VStack(spacing: Self.headerSpacing) {
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(color.opacity(0.18))
+                    Capsule().fill(Color(argb: palette.ring))
+                        .frame(width: geometry.size.width * min(1, max(0, model.progress)))
+                }
+            }
+            .frame(height: Self.barHeight)
+            .padding(.horizontal, 24)
+            .accessibilityElement()
+            .accessibilityLabel(tr("wird.a11y.progress"))
+            .accessibilityValue("\(Int((model.progress * 100).rounded()))%")
+            .accessibilityIdentifier("wird.session.progress")
             Text(model.name)
                 .font(font)
                 .lineLimit(1)
@@ -176,12 +172,6 @@ struct WirdSessionView: View {
         }
         .foregroundStyle(color)
         .padding(.top, Self.headerTopPadding)
-    }
-
-    private var headerHeight: CGFloat {
-        let line = (UIFont(name: family.postScriptName(.medium), size: Self.labelSize)
-            ?? .systemFont(ofSize: Self.labelSize)).lineHeight
-        return Self.headerTopPadding + line + Self.headerSpacing + line
     }
 
     private func completedMessage(_ palette: ThemePalette) -> some View {

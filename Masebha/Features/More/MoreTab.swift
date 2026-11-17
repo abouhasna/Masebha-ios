@@ -66,8 +66,7 @@ struct MoreView: View {
             Section {
                 link(tr("more.suggest"), subtitle: tr("more.suggest.summary"), icon: "lightbulb.fill",
                      url: AppLinks.suggestions, id: "more.suggest")
-                link(tr("more.contact"), subtitle: AppLinks.email, icon: "envelope.fill",
-                     url: AppLinks.contact, id: "more.contact")
+                link(tr("more.contact"), icon: "envelope.fill", url: AppLinks.contact, id: "more.contact")
             } header: {
                 Text(tr("more.feedback"))
             }
