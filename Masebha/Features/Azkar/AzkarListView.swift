@@ -69,13 +69,22 @@ struct AzkarListView: View {
                             language: environment.settings.language, now: now)
             }
             if reordering {
-                // A plain bar button (not the "confirmation" style, which iOS 26 draws as a pale
-                // filled capsule that made the white text hard to read on light themes).
+                // Plain button with its own text color, like the counter's toolbar pill: iOS 26
+                // fills a standard bar button with the tint (white here), which made the white
+                // text unreadable on light themes.
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(tr("common.done")) {
+                    Button {
                         withAnimation { reordering = false }
+                    } label: {
+                        Text(tr("common.done"))
+                            .appFont(17, .bold)
+                            .foregroundStyle(Color(argb: ColorMath.readableIcon(accent: palette.toolsAccent,
+                                                                                on: palette.tools)))
+                            .padding(.horizontal, 10)
+                            .frame(minHeight: 34)
+                            .contentShape(Rectangle())
                     }
-                    .bold()
+                    .buttonStyle(.plain)
                     .accessibilityIdentifier("list.doneReordering")
                 }
             }
