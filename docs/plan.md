@@ -68,10 +68,9 @@ These are small differences from Android, decided during the build. Each one is 
   - iOS's built-in edit-mode handles are not used: they are always gray, cannot be colored, and vanish on mid-gray colors.
 - **The Hijri date header is centered** in the title area (iOS style). iOS 26 wraps side items in a glass capsule that clipped the text.
 - **iOS 26 look.** Toolbar buttons sit in the system's glass capsule. The theme colors still apply to the bars and screens.
-- **Our own bottom bar, solid like Android's.** iOS 26's tab bar is see-through glass whose colors follow the content behind it, which made icons unreadable on some themes.
-  - Colors as on Android: the toolbar color behind, the toolbar accent on it (switched to white or near-black if not readable). The unselected tab is faded to 70% (Android: 55%).
-  - It shows on the tab screens and on Settings. It does not show on the counter screen.
-  - Choosing a tab opens that tab's first screen.
+- **Apple's standard tab bar, with no colors forced on it** (owner's choice). iOS colors the bar and its icons by itself. On iOS 26 the glass picks dark or light icons from what is behind it. The selected tab uses iOS's default color.
+  - Earlier builds forced the bar to "dark" from the toolbar color, which gave white icons on light glass.
+  - Each tab remembers its screen (for example, More stays on Settings).
 - **Counter ring size.** It is at least 240 pt on every iPhone, with one exception: the 4.7" iPhone SE with the biggest font and the "today" row on. There the ring shrinks to about 208 pt, so that it never goes under the buttons.
 - **Taps on the dhikr text count**, unlike on Android. A swipe scrolls the text (scroll mode) or the page (no scroll mode), and never counts.
 - **The "+" button is always visible.** The list gets extra space at the bottom so it never hides the last card; Android hid it while scrolling.

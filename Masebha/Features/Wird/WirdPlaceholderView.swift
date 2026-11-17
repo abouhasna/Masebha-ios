@@ -2,7 +2,6 @@ import SwiftUI
 
 /// Wird (daily routines) is a supporter feature built in Leap 2. Until then this tab explains it.
 struct WirdPlaceholderView: View {
-    @Binding var selection: AppTab
     @Environment(AppEnvironment.self) private var environment
 
     var body: some View {
@@ -30,6 +29,6 @@ struct WirdPlaceholderView: View {
             .navigationBarTitleDisplayMode(.inline)
             .themedNavigationBar(palette.tools)
         }
-        .appTabBar($selection)
+        .modifier(TabContentTint())
     }
 }

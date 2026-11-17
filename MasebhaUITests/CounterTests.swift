@@ -117,7 +117,6 @@ final class CounterTests: XCTestCase {
 
         // On (default): the long text sits in a small window that scrolls by itself.
         app.openCard(ayatAlKursi)
-        XCTAssertFalse(app.tabButton("Azkar").exists, "No bottom bar on the counter screen")
         XCTAssertEqual(app.value("counter.total"), "7")
         let window = app.element("counter.textWindow")
         for _ in 0..<3 { window.tap() }

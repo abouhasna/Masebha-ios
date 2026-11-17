@@ -3,14 +3,11 @@ import SwiftUI
 /// The More tab (≈ the Android side drawer): total, reset all, settings and links.
 /// Support, feedback, rating and sharing arrive in the next leaps.
 struct MoreTab: View {
-    @Binding var selection: AppTab
-
     var body: some View {
         NavigationStack {
             MoreView()
         }
-        // On the whole More stack: Settings and its pages keep the bottom bar too.
-        .appTabBar($selection)
+        .modifier(TabContentTint())
     }
 }
 

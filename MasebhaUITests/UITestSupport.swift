@@ -135,9 +135,9 @@ extension XCUIApplication {
         }
     }
 
-    /// A button of our bottom bar (AppTabBar), by its visible title.
+    /// A button of the bottom tab bar, by its visible title.
     func tabButton(_ label: String) -> XCUIElement {
-        buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'tab.' AND label == %@", label)).firstMatch
+        tabBars.buttons[label]
     }
 
     func tab(_ label: String) {

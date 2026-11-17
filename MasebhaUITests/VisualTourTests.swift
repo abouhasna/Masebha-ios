@@ -132,7 +132,7 @@ final class VisualTourTests: XCTestCase {
 
         // "Scroll long dhikr" off: the text is shown in full and the ring keeps its full size,
         // so here it moves down; the page scrolls to it, and taps still count.
-        app.openSettings(moreLabel: "المزيد")
+        app.tab("المزيد")   // still on Settings: each tab remembers its screen
         app.setSwitch("settings.scrollableText", on: false)
         app.tab("الأذكار")
         app.openCard(medium)
@@ -207,9 +207,14 @@ final class VisualTourTests: XCTestCase {
         screenshot(app, "A45-reorder-mode-green-theme")
         app.buttons["list.doneReordering"].tap()
 
-        // White theme: black bars, white icons.
-        app.openSettings(moreLabel: "المزيد")
-        app.element("settings.theme").tap()
+        // White theme.
+        app.tab("المزيد")   // still on Settings
+        let themeRow = app.element("settings.theme")
+        if !themeRow.waitForExistence(timeout: 3) || !themeRow.isHittable {
+            app.swipeDown()
+            app.swipeDown()
+        }
+        themeRow.tap()
         app.element("theme.theme2").tap()
         app.tab("الأذكار")
         XCTAssertTrue(app.card("سبحان الله").waitForExistence(timeout: 5))
@@ -234,7 +239,10 @@ final class VisualTourTests: XCTestCase {
             let counterName = name == "A41" ? "A42" : "A44"
             screenshot(app, "\(counterName)-counter-\(theme)-\(font)")
             app.goBack()
+            app.tab("المزيد")
+            app.goBack()
         }
+        app.tab("الأذكار")
         app.cardMenu("الحمد لله", choose: "ترتيب")
         XCTAssertTrue(app.buttons["list.doneReordering"].waitForExistence(timeout: 5))
         screenshot(app, "A47-reorder-mode-theme9")
