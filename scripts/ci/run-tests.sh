@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 # Runs all unit and UI tests on the given simulator. Results go to build/TestResults.xcresult.
+#
+# The app is signed ad hoc ("-", no certificate needed in the Simulator): StoreKit testing must
+# be able to write into the app's container, which an unsigned app does not allow.
 set -euo pipefail
 
 udid="$1"
@@ -12,4 +15,7 @@ xcodebuild test \
   -destination "id=${udid}" \
   -resultBundlePath build/TestResults.xcresult \
   -quiet \
-  CODE_SIGNING_ALLOWED=NO
+  CODE_SIGNING_ALLOWED=YES \
+  CODE_SIGN_STYLE=Manual \
+  CODE_SIGN_IDENTITY=- \
+  DEVELOPMENT_TEAM=""

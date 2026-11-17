@@ -165,7 +165,9 @@ final class VisualTourTests: XCTestCase {
         app.swipeUp()
         screenshot(app, "A30-settings-bottom")
 
-        app.element("settings.tapVibration").tap()
+        let vibration = app.element("settings.tapVibration")
+        for _ in 0..<4 where !(vibration.exists && vibration.isHittable) { app.swipeDown() }
+        vibration.tap()
         screenshot(app, "A31-vibration-durations")
         app.goBack()
         app.swipeDown()
