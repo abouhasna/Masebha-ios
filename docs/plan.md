@@ -53,8 +53,59 @@ Every leap ends with a CI build, automated tests, the owner's manual test checkl
 |---|---|
 | **0: Pipeline** | Project skeleton, CI (build, tests, screenshots, unsigned IPA), sideload to the owner's iPhone |
 | **1: Core app (free features)** | Database, the Azkar list (add, edit, delete, reorder, reset, seeds), counter (taps, loops, undo, resets, resume loop, daily stats, prev/next, sounds, haptics, power mode, coach mark), auto-timer and timer dialog, settings, themes and custom colors, fonts and font size (paid items behind a debug switch), language and RTL, Hijri date, daily reminder |
-| **2: Supporter and data** | Purchases, the Support screen, the premium screen, feature gating, privacy policy, Wird, backup and restore (Android-compatible), TestFlight (needs the $99 account) |
+| **2: Supporter and data** | Purchases, the Support screen, the premium screen, feature gating, privacy policy, Wird, backup and restore (Android-compatible), TestFlight (needs the $99 account), and the Leap 1 review follow-ups below |
 | **3: Online and release** | iOS popup and suggestions (Firestore REST), static welcome popup, promos, rating and sharing, the App Store listing, a full regression pass, and submission |
+
+## Leap 2: follow-ups from the Leap 1 review (owner's requests)
+
+### 1. Long dhikr: one layout, no setting
+
+**Remove the "Scroll long dhikr" setting.**
+- The counter always follows the rule below.
+- The stored key `scrollable_text` is no longer read or shown. An Android backup that contains it imports fine; the value is ignored.
+
+**Layout rule: the dhikr text has priority over the ring size.**
+
+Terms:
+- `H` is the height between the toolbar and the previous/next bar.
+- `S` is the statistics block (one or two rows).
+- `P` is the fixed paddings.
+- `Rmax` is the biggest ring: 340 pt, less on narrow screens.
+- `Rmin` is the smallest ring: 240 pt.
+- `Tn` is the text height at the user's font size, and `Ts` the text height at the small size (16 pt). Both are measured with the user's font.
+
+The steps:
+1. **Normal text.** If `Tn + S + P + Rmax ≤ H`: full text at the user's size, biggest ring, no scrolling. This is today's look for normal adhkar.
+2. **Long text.** Otherwise, if `Tn + S + P + Rmin ≤ H`: full text at the user's size, no scrolling. The ring shrinks to fit exactly: `ring = H − Tn − S − P`, which stays between `Rmin` and `Rmax`.
+3. **Very long text.** Otherwise:
+   - The text switches to the small size. It never becomes larger than the user's own size.
+   - `ring = clamp(H − Ts − S − P, Rmin, Rmax)`.
+   - The text window takes all the rest: `H − S − P − ring`. There is no 4-line limit; the window is as big as possible.
+   - If the small text is still taller than its window, it scrolls inside the window.
+
+What stays the same:
+- Taps anywhere count, on the text too. A swipe on the text scrolls it and never counts.
+- Very short screens (the 4.7" iPhone SE with the biggest font and the "today" row) keep today's exception: the ring may go under `Rmin`, so that at least one line of text stays visible.
+
+What changes, and is expected:
+- The ring size can differ from one dhikr to the next.
+- It is recomputed when the font size or the "today" row changes.
+
+Acceptance:
+- Unit tests (`CounterLayoutTests`) for each step and each boundary between steps, on 4.7" SE, mini, iPhone 17 and Pro Max sizes. Each case runs with the default and the biggest font, with and without the "today" row.
+- Screenshots of step 1 (a short dhikr), step 2 (a medium-long one) and step 3 (Ayat al-Kursi), each with the default and the biggest font. Arabic first, plus one English set.
+- UI test: taps on the text count, and swipes on the text do not.
+
+### 2. Counter ring without the gap (only if easy: it is one padding value)
+- The filled center circle touches the inner edge of the ring. Today there is a gap of about 5 pt.
+- The same applies to the small ring previews on the theme page.
+- Acceptance: screenshots on a dark theme, a light theme and a supporter theme.
+
+### 3. Selected tab in green
+- The selected tab of Apple's tab bar is green instead of iOS blue. Unselected tabs keep iOS's own colors.
+- The glass is light or dark depending on what is behind it, so the green has two shades: a darker green on light glass (around `#16803C`) and a brighter one on dark glass (around `#30D158`). iOS picks the shade.
+  - If the screenshots show that iOS does not switch shades inside the tab bar, use a single green that is readable on both.
+- Acceptance: the selected tab is readable in screenshots on every theme. The hardest case is the green theme, with green cards behind the bar.
 
 ## Implementation choices made in Leap 1
 
