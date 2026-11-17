@@ -3,8 +3,6 @@ import XCTest
 /// Walks through every screen and state and saves numbered screenshots for the owner's review.
 /// Arabic first ("A…"), with a shorter English set ("E…").
 final class VisualTourTests: XCTestCase {
-    private let ayatAlKursi = "{اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ وَلَا يَئُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ}"
-
     override func setUpWithError() throws {
         continueAfterFailure = false
     }
@@ -134,7 +132,7 @@ final class VisualTourTests: XCTestCase {
 
         // "Scroll long dhikr" off: the text is shown in full and the ring keeps its full size,
         // so here it moves down; the page scrolls to it, and taps still count.
-        app.tab("المزيد")
+        app.openSettings(moreLabel: "المزيد")
         app.setSwitch("settings.scrollableText", on: false)
         app.tab("الأذكار")
         app.openCard(medium)
@@ -201,6 +199,21 @@ final class VisualTourTests: XCTestCase {
         app.openCard("سبحان الله")
         app.count(5)
         screenshot(app, "A40-counter-green-theme")
+        app.goBack()
+
+        // Reorder mode on a light theme: the ≡ handles use the card's text color.
+        app.cardMenu("الحمد لله", choose: "ترتيب")
+        XCTAssertTrue(app.buttons["list.doneReordering"].waitForExistence(timeout: 5))
+        screenshot(app, "A45-reorder-mode-green-theme")
+        app.buttons["list.doneReordering"].tap()
+
+        // White theme: black bars, white icons.
+        app.openSettings(moreLabel: "المزيد")
+        app.element("settings.theme").tap()
+        app.element("theme.theme2").tap()
+        app.tab("الأذكار")
+        XCTAssertTrue(app.card("سبحان الله").waitForExistence(timeout: 5))
+        screenshot(app, "A46-list-white-theme")
     }
 
     @MainActor
@@ -221,9 +234,10 @@ final class VisualTourTests: XCTestCase {
             let counterName = name == "A41" ? "A42" : "A44"
             screenshot(app, "\(counterName)-counter-\(theme)-\(font)")
             app.goBack()
-            app.tab("المزيد")
-            app.goBack()
         }
+        app.cardMenu("الحمد لله", choose: "ترتيب")
+        XCTAssertTrue(app.buttons["list.doneReordering"].waitForExistence(timeout: 5))
+        screenshot(app, "A47-reorder-mode-theme9")
     }
 
     // MARK: English

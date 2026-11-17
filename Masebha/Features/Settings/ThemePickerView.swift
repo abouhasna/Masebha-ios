@@ -88,6 +88,8 @@ struct ThemePreviewCard: View {
                             .foregroundStyle(Color(argb: colors.progressText))
                     }
                     .frame(width: 44, height: 44)
+                    // Starts at the top and fills clockwise, in Arabic too (like the real counter ring).
+                    .environment(\.layoutDirection, .leftToRight)
                     Spacer(minLength: 0)
                 }
                 .frame(maxWidth: .infinity)

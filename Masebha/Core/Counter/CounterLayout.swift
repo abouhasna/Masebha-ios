@@ -37,9 +37,12 @@ nonisolated enum CounterLayout {
         let oneLine = min(textHeight, lineHeight)
         let window = max(oneLine, min(textHeight, fourLines, roomForText))
 
-        // The ring takes the rest, between its minimum and maximum.
+        // The ring takes the rest, up to its maximum. Because the window gave way first, the rest
+        // is at least the minimum ring, except on a very short screen (the 4.7" iPhone SE with the
+        // biggest font and the "today" row on, or a zoomed display): there the ring shrinks to
+        // fit, so it never slips under the previous/next buttons.
         let roomForRing = availableHeight - fixed - window
-        let ring = min(ringMax, max(ringMin, roomForRing))
+        let ring = max(0, min(ringMax, roomForRing))
         return Result(textWindowHeight: window, ringDiameter: ring)
     }
 }

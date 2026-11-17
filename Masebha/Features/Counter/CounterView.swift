@@ -78,7 +78,6 @@ struct CounterView: View {
                 actionPill(model, iconColor: iconColor)
             }
         }
-        .toolbar(.hidden, for: .tabBar)
         .toolbar(powerMode ? .hidden : .visible, for: .navigationBar)
         .statusBarHidden(powerMode)
         .themedNavigationBar(toolbarColor)

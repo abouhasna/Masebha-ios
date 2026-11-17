@@ -1293,6 +1293,23 @@
         }
       }
     },
+    "list.reorder.hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اضغط مطولاً على أي ذكر ثم اسحبه إلى مكانه الجديد"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Press and hold a dhikr, then drag it to its new place"
+          }
+        }
+      }
+    },
     "list.reset.message" : {
       "extractionState" : "manual",
       "localizations" : {

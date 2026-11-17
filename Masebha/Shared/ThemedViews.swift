@@ -27,13 +27,6 @@ extension View {
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbarColorScheme(ColorMath.isLight(color) ? .light : .dark, for: .navigationBar)
     }
-
-    /// Colors the bottom tab bar like the Android bottom navigation.
-    func themedTabBar(_ color: ARGB) -> some View {
-        toolbarBackground(Color(argb: color), for: .tabBar)
-            .toolbarBackground(.visible, for: .tabBar)
-            .toolbarColorScheme(ColorMath.isLight(color) ? .light : .dark, for: .tabBar)
-    }
 }
 
 /// The dark grouped style of the Android Settings screen.

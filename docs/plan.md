@@ -63,11 +63,17 @@ These are small differences from Android, decided during the build. Each one is 
 - **Native mirroring in Arabic.** Previous/Next, Total/Loops and the "+" button swap sides, as in native Arabic iOS apps. The ± buttons of the timer dialog stay left-to-right, because they show numbers.
 - **"Sound while timer runs in background" is not on iOS.** iOS has no background timer (decision Q2).
 - **Timer dialog "Cancel" discards the change.** On Android a cancelled change was kept by mistake.
-- **Reordering.** Long-press and drag a card, like Android (the iOS 26 list lifts the card).
-  - "⋮ → Reorder" opens a handle mode (≡ handles + "Done"), which also suits VoiceOver users.
-  - If an iOS version does not lift the card, the long-press opens that handle mode instead.
+- **Reordering.** Press and hold a card, then drag it, like Android. iOS lifts the card on every supported version (16+).
+  - "⋮ → Reorder" opens a reorder mode: our own ≡ on every card (in the card's text color, so it shows on any theme, custom colors included), a hint, and "Done". Cards do not open while it is on.
+  - iOS's built-in edit-mode handles are not used: they are always gray, cannot be colored, and vanish on mid-gray colors.
 - **The Hijri date header is centered** in the title area (iOS style). iOS 26 wraps side items in a glass capsule that clipped the text.
-- **iOS 26 look.** Toolbar buttons sit in the system's glass capsule, and the tab bar is iOS 26's floating glass bar instead of a solid green bar. The theme colors still apply to the bars and screens.
+- **iOS 26 look.** Toolbar buttons sit in the system's glass capsule. The theme colors still apply to the bars and screens.
+- **Our own bottom bar, solid like Android's.** iOS 26's tab bar is see-through glass whose colors follow the content behind it, which made icons unreadable on some themes.
+  - Colors as on Android: the toolbar color behind, the toolbar accent on it (switched to white or near-black if not readable). The unselected tab is faded to 70% (Android: 55%).
+  - It shows on the tab screens and on Settings. It does not show on the counter screen.
+  - Choosing a tab opens that tab's first screen.
+- **Counter ring size.** It is at least 240 pt on every iPhone, with one exception: the 4.7" iPhone SE with the biggest font and the "today" row on. There the ring shrinks to about 208 pt, so that it never goes under the buttons.
+- **Taps on the dhikr text count**, unlike on Android. A swipe scrolls the text (scroll mode) or the page (no scroll mode), and never counts.
 - **The "+" button is always visible.** The list gets extra space at the bottom so it never hides the last card; Android hid it while scrolling.
 - **Add/Edit is an iOS sheet with inline error messages**, instead of a dialog with toasts. The validation rules are the same.
 - **Counter reset is an iOS action sheet** with "Reset" / "Reset all" / "Cancel".

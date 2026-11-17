@@ -5,6 +5,7 @@ struct DhikrCard: View {
     let dhikr: Dhikr
     let palette: ThemePalette
     let now: Date
+    var isReordering = false
     let onEdit: () -> Void
     let onReset: () -> Void
     let onReorder: () -> Void
@@ -31,20 +32,30 @@ struct DhikrCard: View {
                     .lineLimit(1)
                     .padding(.trailing, 8)
                     .accessibilityIdentifier("card.lastOpened")
-                Menu {
-                    Button(tr("common.edit"), systemImage: "pencil", action: onEdit)
-                    Button(tr("common.reset"), systemImage: "arrow.counterclockwise", action: onReset)
-                    Button(tr("card.reorder"), systemImage: "arrow.up.arrow.down", action: onReorder)
-                    Button(tr("common.delete"), systemImage: "trash", role: .destructive, action: onDelete)
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .font(.system(size: 20, weight: .bold))
-                        .rotationEffect(.degrees(90))
+                if isReordering {
+                    // Our own ≡ (iOS's built-in handles are always gray and could vanish on some
+                    // colors). Card text color: as visible as the dhikr name on every theme.
+                    Image(systemName: "line.3.horizontal")
+                        .font(.system(size: 22, weight: .bold))
                         .frame(width: 44, height: 40)
-                        .contentShape(Rectangle())
+                        .accessibilityLabel(tr("card.reorder"))
+                        .accessibilityIdentifier("card.handle")
+                } else {
+                    Menu {
+                        Button(tr("common.edit"), systemImage: "pencil", action: onEdit)
+                        Button(tr("common.reset"), systemImage: "arrow.counterclockwise", action: onReset)
+                        Button(tr("card.reorder"), systemImage: "arrow.up.arrow.down", action: onReorder)
+                        Button(tr("common.delete"), systemImage: "trash", role: .destructive, action: onDelete)
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.system(size: 20, weight: .bold))
+                            .rotationEffect(.degrees(90))
+                            .frame(width: 44, height: 40)
+                            .contentShape(Rectangle())
+                    }
+                    .accessibilityLabel(tr("card.menu"))
+                    .accessibilityIdentifier("card.menu")
                 }
-                .accessibilityLabel(tr("card.menu"))
-                .accessibilityIdentifier("card.menu")
             }
             .fixedSize()
         }

@@ -1,11 +1,10 @@
 import SwiftUI
-import UIKit
 
 /// The home screen: the user's adhkar as cards (≈ MainActivity + MyAdapter on Android).
 /// Tap a card to count, ⋮ for edit / reset / reorder / delete.
-/// Reordering: long-press and drag a card (the list lifts it, like Android). "⋮ → Reorder" opens the
-/// handle mode (≡ + Done), which also works with VoiceOver; on an iOS version where the list does
-/// not lift the card, the long press opens that same mode.
+/// Reordering: press and hold a card, then drag it (iOS lifts it, like Android), at any time.
+/// "⋮ → Reorder" opens a reorder mode that makes this visible: a ≡ on every card, a hint, and
+/// cards that do not open while it is on. Every move is saved immediately.
 struct AzkarListView: View {
     @Environment(AppEnvironment.self) private var environment
     @Environment(\.scenePhase) private var scenePhase
@@ -17,31 +16,30 @@ struct AzkarListView: View {
     @State private var pendingReset: Dhikr?
     @State private var pendingDelete: Dhikr?
     @State private var errorMessage: String?
-    @State private var editMode: EditMode = .inactive
+    @State private var reordering = false
 
     var body: some View {
         let palette = environment.palette
         List {
             ForEach(items) { item in
-                DhikrCard(dhikr: item, palette: palette, now: now,
+                DhikrCard(dhikr: item, palette: palette, now: now, isReordering: reordering,
                           onEdit: { editor = .edit(item) },
                           onReset: { pendingReset = item },
                           onReorder: startReordering,
                           onDelete: { pendingDelete = item })
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        if !editMode.isEditing { onOpen(item.id) }
+                        if !reordering { onOpen(item.id) }
                     }
-                    .onLongPressGesture(minimumDuration: 0.5) { startReordering() }
                     .listRowInsets(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
             }
+            // Press and hold, then drag (no edit mode needed since iOS 16).
             .onMove(perform: move)
         }
         .listStyle(.plain)
-        .environment(\.editMode, $editMode)
-        // System parts of the list (the ≡ reorder handles) follow the background: light on dark themes.
+        // System parts of the list (menus, the lifted card) follow the background: dark on dark themes.
         .environment(\.colorScheme, ColorMath.isLight(palette.background) ? .light : .dark)
         .scrollContentBackground(.hidden)
         .contentMargins(.bottom, 88, for: .scrollContent)   // the last card is never hidden by "+"
@@ -57,19 +55,23 @@ struct AzkarListView: View {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            if !editMode.isEditing { addButton(palette) }
+            if !reordering { addButton(palette) }
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            if reordering { reorderHint(palette) }
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             // The title area (not a bar button), so iOS 26 does not wrap it in a glass capsule.
             ToolbarItem(placement: .principal) {
-                HijriHeader(color: palette.toolsAccent, offset: environment.settings.hijriOffset,
+                HijriHeader(color: ColorMath.readableIcon(accent: palette.toolsAccent, on: palette.tools),
+                            offset: environment.settings.hijriOffset,
                             language: environment.settings.language, now: now)
             }
-            if editMode.isEditing {
+            if reordering {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(tr("common.done")) {
-                        withAnimation { editMode = .inactive }
+                        withAnimation { reordering = false }
                     }
                     .bold()
                     .accessibilityIdentifier("list.doneReordering")
@@ -124,12 +126,24 @@ struct AzkarListView: View {
         .accessibilityIdentifier("list.add")
     }
 
+    /// Under the toolbar, in its colors, while reorder mode is on.
+    private func reorderHint(_ palette: ThemePalette) -> some View {
+        Text(tr("list.reorder.hint"))
+            .appFont(14, .medium)
+            .multilineTextAlignment(.center)
+            .foregroundStyle(Color(argb: ColorMath.readableIcon(accent: palette.toolsAccent, on: palette.tools)))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity)
+            .background(Color(argb: palette.tools))
+            .accessibilityIdentifier("list.reorderHint")
+    }
+
     // MARK: Actions
 
     private func startReordering() {
-        guard !editMode.isEditing, items.count > 1 else { return }
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-        withAnimation { editMode = .active }
+        guard items.count > 1 else { return }
+        withAnimation { reordering = true }
     }
 
     private func reload() {

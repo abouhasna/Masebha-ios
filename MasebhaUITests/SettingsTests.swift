@@ -14,13 +14,13 @@ final class SettingsUITests: XCTestCase {
         app.swipeUpUntil(language)
         language.tap()
         app.text("العربية").tap()
-        XCTAssertTrue(app.tabBars.buttons["المزيد"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.tabButton("المزيد").waitForExistence(timeout: 5))
         XCTAssertTrue(app.text("الإعدادات").exists || app.text("اللغة").exists)
         app.tab("الأذكار")
         XCTAssertTrue(app.card("Subhan Allah").waitForExistence(timeout: 5))   // the user's texts stay as they are
 
         relaunch(app)
-        XCTAssertTrue(app.tabBars.buttons["الأذكار"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.tabButton("الأذكار").waitForExistence(timeout: 10))
     }
 
     @MainActor

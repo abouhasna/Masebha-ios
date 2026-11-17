@@ -49,6 +49,48 @@ struct CounterLayoutTests {
         #expect(result.ringDiameter == CounterLayout.ringMinimum)
     }
 
+    // Measured on the iPhone 17 screenshot with the biggest font (42) and the "today" row:
+    // statistics block ≈ 214 pt, one dhikr line ≈ 61 pt.
+    private let hugeStats: CGFloat = 214
+    private let hugeLine: CGFloat = 61
+
+    private func used(_ result: CounterLayout.Result, stats: CGFloat) -> CGFloat {
+        CounterLayout.textTopPadding + result.textWindowHeight + stats
+            + 2 * CounterLayout.ringVerticalPadding + result.ringDiameter
+    }
+
+    /// iPhones with Face ID (mini to Pro Max), biggest font + "today" row: the ring keeps at least
+    /// its minimum and everything fits above the previous/next buttons.
+    @Test(arguments: [(375, 812), (390, 844), (402, 874), (440, 956)] as [(CGFloat, CGFloat)])
+    func faceIDiPhonesKeepTheMinimumRing(width: CGFloat, screenHeight: CGFloat) {
+        let available = screenHeight - 116 - 60 - 34   // toolbar + status bar, buttons, home bar
+        let result = CounterLayout.scrolling(availableHeight: available, width: width, statsHeight: hugeStats,
+                                             textHeight: hugeLine * 3, lineHeight: hugeLine)
+        #expect(result.ringDiameter >= CounterLayout.ringMinimum)
+        #expect(used(result, stats: hugeStats) <= available + 0.5)
+    }
+
+    /// 4.7" iPhone SE (375 x 667), biggest font + "today" row: there is not enough height for the
+    /// 240 pt ring, so it shrinks (to about 208 pt) instead of going under the buttons.
+    @Test func iPhoneSEWithBiggestFontAndTodayRowShrinksTheRingToFit() {
+        let available: CGFloat = 667 - 64 - 60   // status bar + toolbar, buttons (no home bar)
+        let result = CounterLayout.scrolling(availableHeight: available, width: 375, statsHeight: hugeStats,
+                                             textHeight: hugeLine * 3, lineHeight: hugeLine)
+        #expect(result.textWindowHeight == hugeLine)   // one line visible, the rest scrolls
+        #expect(result.ringDiameter > 200 && result.ringDiameter < CounterLayout.ringMinimum)
+        #expect(used(result, stats: hugeStats) <= available + 0.5)
+    }
+
+    /// Same iPhone SE with the biggest font but without the "today" row: the full minimum again.
+    @Test func iPhoneSEWithBiggestFontKeepsTheMinimumRing() {
+        let available: CGFloat = 667 - 64 - 60
+        let oneRowStats: CGFloat = 24 + 88
+        let result = CounterLayout.scrolling(availableHeight: available, width: 375, statsHeight: oneRowStats,
+                                             textHeight: hugeLine * 3, lineHeight: hugeLine)
+        #expect(result.ringDiameter >= CounterLayout.ringMinimum)
+        #expect(used(result, stats: oneRowStats) <= available + 0.5)
+    }
+
     @Test func narrowScreenRingFitsTheWidth() {
         let narrow: CGFloat = 320
         #expect(CounterLayout.maximumRing(width: narrow) == narrow - 72)

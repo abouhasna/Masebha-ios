@@ -16,7 +16,7 @@ final class OnboardingAndListTests: XCTestCase {
         XCTAssertTrue(app.card("سبحان الله").waitForExistence(timeout: 10))
         XCTAssertEqual(app.cardTotal("سبحان الله"), "0")
         XCTAssertTrue(app.text("لم يُفتح بعد").exists)
-        XCTAssertTrue(app.tabBars.buttons["الأذكار"].exists)
+        XCTAssertTrue(app.tabButton("الأذكار").exists)
         for name in ["الحمد لله", "الله أكبر", "اللهم صل على محمد", "أستغفر الله", "لا إله إلا الله",
                      "سبحان الله وبحمده سبحان الله العظيم"] {
             XCTAssertTrue(app.hasCard(name), "Missing starter dhikr: \(name)")
@@ -36,7 +36,7 @@ final class OnboardingAndListTests: XCTestCase {
         english.tap()
         XCTAssertTrue(app.card("Subhan Allah").waitForExistence(timeout: 10))
         XCTAssertTrue(app.card("Astaghfirullah").exists)
-        XCTAssertTrue(app.tabBars.buttons["Azkar"].exists)
+        XCTAssertTrue(app.tabButton("Azkar").exists)
     }
 
     @MainActor
@@ -105,22 +105,31 @@ final class OnboardingAndListTests: XCTestCase {
         app.descendants(matching: .any).matching(identifier: "card.name").allElementsBoundByIndex.map { $0.label }
     }
 
-    /// ⋮ → Reorder: handles appear; dragging a handle moves the card; Done ends it.
+    /// ⋮ → Reorder: our ≡ handles and a hint appear instead of the ⋮ menus, a tap no longer opens
+    /// a card, press-and-drag moves a card, Done ends it, and the order survives a relaunch.
     @MainActor
-    func testReorderFromTheCardMenuWithHandles() throws {
+    func testReorderModeShowsHandlesAndMovesCards() throws {
         let app = launchApp()
         XCTAssertTrue(app.card("Subhan Allah").waitForExistence(timeout: 10))
         app.cardMenu("Subhan Allah", choose: "Reorder")
         let done = app.buttons["list.doneReordering"]
         XCTAssertTrue(done.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.element("list.reorderHint").exists)
         XCTAssertFalse(app.element("list.add").exists)   // "+" hidden while reordering
-        let handles = app.buttons.matching(NSPredicate(format: "label BEGINSWITH[c] 'Reorder'"))
+        let handles = app.descendants(matching: .any).matching(identifier: "card.handle")
         XCTAssertGreaterThanOrEqual(handles.count, 3, "No reorder handles")
+        XCTAssertFalse(app.buttons["card.menu"].exists, "⋮ menus should be replaced by handles")
 
-        handles.element(boundBy: 0).press(forDuration: 0.6, thenDragTo: handles.element(boundBy: 2),
-                                          withVelocity: .slow, thenHoldForDuration: 0.5)
+        // A tap does not open the counter while reordering.
+        app.card("Alhamdulillah").staticTexts.matching(identifier: "card.name").firstMatch.tap()
+        XCTAssertFalse(app.element("counter.current").waitForExistence(timeout: 2))
+
+        app.card("Subhan Allah").press(forDuration: 1.0, thenDragTo: app.card("Allahu Akbar"),
+                                       withVelocity: .slow, thenHoldForDuration: 0.6)
         done.tap()
         XCTAssertTrue(app.element("list.add").waitForExistence(timeout: 5))
+        XCTAssertFalse(app.element("list.reorderHint").exists)
+        XCTAssertTrue(app.buttons["card.menu"].firstMatch.exists)
         XCTAssertNotEqual(cardNames(app).first, "Subhan Allah", "Order did not change: \(cardNames(app))")
         let order = cardNames(app)
 
@@ -129,8 +138,7 @@ final class OnboardingAndListTests: XCTestCase {
         XCTAssertEqual(cardNames(app), order)
     }
 
-    /// Long-press and drag a card directly (like Android). If this iOS version opens the
-    /// handle mode instead, the test finishes the move with a handle.
+    /// Press-and-drag works directly too, without the reorder mode (like Android).
     @MainActor
     func testLongPressAndDragReordersAndPersists() throws {
         let app = launchApp()
@@ -139,13 +147,7 @@ final class OnboardingAndListTests: XCTestCase {
         XCTAssertTrue(first.waitForExistence(timeout: 10))
 
         first.press(forDuration: 1.0, thenDragTo: third, withVelocity: .slow, thenHoldForDuration: 0.6)
-        let done = app.buttons["list.doneReordering"]
-        if done.waitForExistence(timeout: 2) {
-            let handles = app.buttons.matching(NSPredicate(format: "label BEGINSWITH[c] 'Reorder'"))
-            handles.element(boundBy: 0).press(forDuration: 0.6, thenDragTo: handles.element(boundBy: 2),
-                                              withVelocity: .slow, thenHoldForDuration: 0.5)
-            done.tap()
-        }
+        XCTAssertFalse(app.buttons["list.doneReordering"].exists)   // no mode needed
         XCTAssertNotEqual(cardNames(app).first, "Subhan Allah", "Order did not change: \(cardNames(app))")
         let order = cardNames(app)
 

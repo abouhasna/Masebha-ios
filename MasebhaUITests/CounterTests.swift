@@ -93,6 +93,53 @@ final class CounterTests: XCTestCase {
         XCTAssertTrue(app.element("counter.today").waitForExistence(timeout: 5))
         XCTAssertEqual(app.value("counter.today"), "40")
         XCTAssertEqual(app.value("counter.session"), "7")
+
+        // "Today count" is an on/off setting: it stays on for every dhikr and after a relaunch.
+        app.goBack()
+        app.openCard("Subhan Allah")
+        XCTAssertTrue(app.element("counter.today").waitForExistence(timeout: 5))
+        relaunch(app)
+        XCTAssertTrue(app.card("Allahu Akbar").waitForExistence(timeout: 10))
+        app.openCard("Allahu Akbar")
+        XCTAssertTrue(app.element("counter.today").waitForExistence(timeout: 5))
+        XCTAssertEqual(app.value("counter.today"), "40")
+        app.element("counter.more").tap()
+        app.buttons["Today count"].firstMatch.tap()
+        XCTAssertFalse(app.element("counter.today").waitForExistence(timeout: 2))
+    }
+
+    /// Taps count everywhere, on the dhikr text too; a swipe (scrolling the text or the page)
+    /// never counts. Checked with "Scroll long dhikr" on and off.
+    @MainActor
+    func testTapsOnTheTextCountAndSwipesDoNot() throws {
+        let app = launchApp(LaunchOptions(demoData: true))
+        XCTAssertTrue(app.card("Subhan Allah").waitForExistence(timeout: 10))
+
+        // On (default): the long text sits in a small window that scrolls by itself.
+        app.openCard(ayatAlKursi)
+        XCTAssertFalse(app.tabButton("Azkar").exists, "No bottom bar on the counter screen")
+        XCTAssertEqual(app.value("counter.total"), "7")
+        let window = app.element("counter.textWindow")
+        for _ in 0..<3 { window.tap() }
+        XCTAssertEqual(app.value("counter.total"), "10")
+        window.swipeUp()
+        XCTAssertEqual(app.value("counter.total"), "10")
+        window.tap()
+        XCTAssertEqual(app.value("counter.total"), "11")
+        app.goBack()
+
+        // Off: the text is shown in full and the whole page scrolls instead.
+        app.openSettings()
+        app.setSwitch("settings.scrollableText", on: false)
+        app.tab("Azkar")
+        app.openCard(ayatAlKursi)
+        let text = app.element("counter.dhikrText")
+        for _ in 0..<2 { text.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1)).tap() }
+        XCTAssertEqual(app.value("counter.total"), "13")
+        app.element("counter.page").swipeUp()
+        XCTAssertEqual(app.value("counter.total"), "13")
+        app.count(1)
+        XCTAssertEqual(app.value("counter.total"), "14")
     }
 
     @MainActor
