@@ -3,6 +3,7 @@ import SwiftUI
 /// Settings (≈ SettingsActivity + root_preferences.xml). Every change is saved immediately.
 struct SettingsView: View {
     @Environment(AppEnvironment.self) private var environment
+    @State private var backup = BackupFlow()
 
     var body: some View {
         @Bindable var settings = environment.settings
@@ -66,8 +67,6 @@ struct SettingsView: View {
             }
 
             Section {
-                toggle($settings.scrollableText, icon: "text.alignright", title: tr("settings.scrollable_text"),
-                       id: "settings.scrollableText")
                 toggle($settings.resumeLoop, icon: "arrow.uturn.forward", title: tr("settings.resume_loop"),
                        subtitle: tr("settings.resume_loop.summary"), id: "settings.resumeLoop")
                 toggle($settings.stopTimerOnLoop, icon: "pause.fill", title: tr("settings.stop_timer_on_loop"),
@@ -119,6 +118,8 @@ struct SettingsView: View {
                 sectionHeader(tr("settings.section.hijri"))
             }
 
+            BackupSection(flow: backup)
+
             Section {
                 Picker(selection: Binding(get: { settings.language },
                                           set: { environment.changeLanguage(to: $0) })) {
@@ -136,7 +137,7 @@ struct SettingsView: View {
 
             #if DEBUG
             Section {
-                Toggle(isOn: Bindable(environment.entitlements).isSupporter) {
+                Toggle(isOn: Bindable(environment.entitlements).debugSupporter) {
                     SettingsRowLabel(icon: "ladybug.fill", title: "Supporter (debug only)")
                 }
                 .settingsRowBackground()
@@ -147,6 +148,7 @@ struct SettingsView: View {
             #endif
         }
         .settingsListStyle()
+        .modifier(BackupPresentation(flow: backup))
         .navigationTitle(tr("settings.title"))
         .navigationBarTitleDisplayMode(.inline)
         .themedNavigationBar(environment.palette.tools)

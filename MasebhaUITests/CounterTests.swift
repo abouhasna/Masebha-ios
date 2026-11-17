@@ -108,14 +108,13 @@ final class CounterTests: XCTestCase {
         XCTAssertFalse(app.element("counter.today").waitForExistence(timeout: 2))
     }
 
-    /// Taps count everywhere, on the dhikr text too; a swipe (scrolling the text or the page)
-    /// never counts. Checked with "Scroll long dhikr" on and off.
+    /// Taps count everywhere, on the dhikr text too; a swipe on a long text only scrolls it.
+    /// The ring is never pushed off the screen by a long text (text-first layout).
     @MainActor
     func testTapsOnTheTextCountAndSwipesDoNot() throws {
         let app = launchApp(LaunchOptions(demoData: true))
         XCTAssertTrue(app.card("Subhan Allah").waitForExistence(timeout: 10))
 
-        // On (default): the long text sits in a small window that scrolls by itself.
         app.openCard(ayatAlKursi)
         XCTAssertEqual(app.value("counter.total"), "7")
         let window = app.element("counter.textWindow")
@@ -125,20 +124,12 @@ final class CounterTests: XCTestCase {
         XCTAssertEqual(app.value("counter.total"), "10")
         window.tap()
         XCTAssertEqual(app.value("counter.total"), "11")
-        app.goBack()
 
-        // Off: the text is shown in full and the whole page scrolls instead.
-        app.openSettings()
-        app.setSwitch("settings.scrollableText", on: false)
-        app.tab("Azkar")
-        app.openCard(ayatAlKursi)
-        let text = app.element("counter.dhikrText")
-        for _ in 0..<2 { text.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1)).tap() }
-        XCTAssertEqual(app.value("counter.total"), "13")
-        app.element("counter.tapArea").swipeUp()   // scrolls the page
-        XCTAssertEqual(app.value("counter.total"), "13")
+        // The whole ring stays above the previous/next bar.
+        let ring = app.element("counter.current")
+        XCTAssertLessThan(ring.frame.maxY, app.element("counter.previous").frame.minY)
         app.count(1)
-        XCTAssertEqual(app.value("counter.total"), "14")
+        XCTAssertEqual(app.value("counter.total"), "12")
     }
 
     @MainActor

@@ -20,7 +20,6 @@ struct SettingsTests {
         #expect(settings.palette == ThemeRegistry.defaultTheme.palette)
         #expect(settings.fontKey == "ibmplexsansarabic")
         #expect(settings.fontSize == 30)
-        #expect(settings.scrollableText == true)
         #expect(settings.resumeLoop == false)
         #expect(settings.vibrateOnLoop == true)
         #expect(settings.vibrateOnTap == false)

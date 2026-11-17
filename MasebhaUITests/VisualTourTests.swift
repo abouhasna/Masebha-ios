@@ -1,10 +1,20 @@
 import XCTest
+import StoreKitTest
 
 /// Walks through every screen and state and saves numbered screenshots for the owner's review.
 /// Arabic first ("A…"), with a shorter English set ("E…").
 final class VisualTourTests: XCTestCase {
+    /// The local test store, so the Support screen shows prices (the tour never buys).
+    private var session: SKTestSession?
+
     override func setUpWithError() throws {
         continueAfterFailure = false
+        if let url = Bundle(for: VisualTourTests.self).url(forResource: "Supporter", withExtension: "storekit") {
+            session = try? SKTestSession(contentsOf: url)
+            session?.resetToDefaultState()
+            session?.disableDialogs = true
+            session?.clearTransactions()
+        }
     }
 
     // MARK: Arabic
@@ -107,15 +117,20 @@ final class VisualTourTests: XCTestCase {
         XCTAssertTrue(app.card("سبحان الله").waitForExistence(timeout: 10))
         let medium = "سبحان الله وبحمده سبحان الله العظيم"
 
-        // "Scroll long dhikr" on (default): long text gets a 4-line window at 16 pt; full-size ring.
-        app.openCard(ayatAlKursi)
-        screenshot(app, "A21-long-dhikr-scroll-mode")
-        app.element("counter.textWindow").swipeUp()
-        screenshot(app, "A22-long-dhikr-scroll-mode-text-scrolled")
+        // The text has priority. Step 2: a long text keeps the user's size; the ring is smaller.
+        app.openCard(mediumLongDhikr)
+        screenshot(app, "A21-long-text-full-size-smaller-ring")
         app.goBack()
 
-        // Hardest case: biggest font + the extra "today" row. With scrolling on, the text window
-        // gives up space so the ring stays at (or above) its minimum size.
+        // Step 3: a very long text switches to the small size and gets all the room the
+        // minimum ring leaves; it scrolls inside its window.
+        app.openCard(ayatAlKursi)
+        screenshot(app, "A22-very-long-text-small-size")
+        app.element("counter.textWindow").swipeUp()
+        screenshot(app, "A23-very-long-text-scrolled")
+        app.goBack()
+
+        // Hardest case: biggest font + the extra "today" row.
         app.openSettings(moreLabel: "المزيد")
         app.element("settings.fontSize").tap()
         app.tapItem("كبير جداً")
@@ -124,23 +139,15 @@ final class VisualTourTests: XCTestCase {
         app.buttons["counter.more"].tap()
         app.tapItem("عدد اليوم")
         XCTAssertTrue(app.element("counter.today").waitForExistence(timeout: 5))
-        screenshot(app, "A23-huge-font-today-row-scroll-mode")
+        screenshot(app, "A24-huge-font-today-row")
+        app.goBack()
+        app.openCard(mediumLongDhikr)
+        screenshot(app, "A25-huge-font-long-text")
         app.goBack()
         app.openCard(ayatAlKursi)
-        screenshot(app, "A24-long-dhikr-huge-font-scroll-mode")
-        app.goBack()
-
-        // "Scroll long dhikr" off: the text is shown in full and the ring keeps its full size,
-        // so here it moves down; the page scrolls to it, and taps still count.
-        app.tab("المزيد")   // still on Settings: each tab remembers its screen
-        app.setSwitch("settings.scrollableText", on: false)
-        app.tab("الأذكار")
-        app.openCard(medium)
-        screenshot(app, "A25-huge-font-no-scroll-top")
-        app.element("counter.tapArea").swipeUp()
-        screenshot(app, "A26-huge-font-no-scroll-scrolled-down")
+        screenshot(app, "A26-huge-font-very-long-text")
         app.count(3)
-        XCTAssertEqual(app.value("counter.total"), "3")
+        XCTAssertEqual(app.value("counter.total"), "10")
     }
 
     @MainActor
@@ -192,7 +199,7 @@ final class VisualTourTests: XCTestCase {
         app.goBack()
 
         app.tab("الأوراد")
-        screenshot(app, "A38-wird-placeholder")
+        screenshot(app, "A38-wird-locked")
         app.tab("الأذكار")
         XCTAssertTrue(app.card("سبحان الله").waitForExistence(timeout: 5))
         screenshot(app, "A39-list-green-theme")
@@ -246,6 +253,81 @@ final class VisualTourTests: XCTestCase {
         app.cardMenu("الحمد لله", choose: "ترتيب")
         XCTAssertTrue(app.buttons["list.doneReordering"].waitForExistence(timeout: 5))
         screenshot(app, "A47-reorder-mode-theme9")
+    }
+
+    @MainActor
+    func testA7ArabicWirdForSupporters() throws {
+        let app = launchApp(LaunchOptions(language: "ar", supporter: true, demoData: true))
+        app.tab("الأوراد")
+        XCTAssertTrue(app.wirdCard("أذكار الصباح").waitForExistence(timeout: 10))
+        screenshot(app, "A48-wird-list-defaults")
+
+        app.openWird("أذكار الصباح")
+        screenshot(app, "A49-wird-session-first-zikr")
+        app.element("counter.current").tap()   // target 1: moves on to the next zikr
+        screenshot(app, "A50-wird-session-next-zikr")
+        app.count(2)
+        screenshot(app, "A51-wird-session-counting")
+        app.buttons["counter.more"].tap()
+        XCTAssertTrue(app.buttons["إعادة الورد من البداية"].waitForExistence(timeout: 5))
+        screenshot(app, "A52-wird-session-menu")
+        app.tapItem("إعادة الورد من البداية")
+        screenshot(app, "A53-wird-reset-dialog")
+        app.dismissPopover(cancelLabel: "الغاء")
+        app.goBack()
+        screenshot(app, "A54-wird-list-in-progress")
+
+        app.wirdMenu("أذكار الصباح", choose: "تعديل")
+        XCTAssertTrue(app.buttons["wird.editor.save"].waitForExistence(timeout: 5))
+        screenshot(app, "A55-wird-editor")
+        app.buttons["wird.editor.cancel"].tap()
+
+        app.element("wird.add").tap()
+        XCTAssertTrue(app.buttons["wird.editor.save"].waitForExistence(timeout: 5))
+        app.buttons["wird.editor.save"].tap()
+        screenshot(app, "A56-wird-new-with-error")
+        app.buttons["wird.editor.cancel"].tap()
+
+        app.wirdMenu("أذكاري", choose: "ترتيب")
+        XCTAssertTrue(app.buttons["list.doneReordering"].waitForExistence(timeout: 5))
+        screenshot(app, "A57-wird-reorder-mode")
+        app.buttons["list.doneReordering"].tap()
+
+        // A small wird to show the "completed" moment.
+        app.element("wird.add").tap()
+        app.field("wird.editor.name").tap()
+        app.field("wird.editor.name").typeText("Short wird")
+        app.field("wird.editor.zikr").tap()
+        app.field("wird.editor.zikr").typeText("Subhan Allah")
+        app.field("wird.editor.target").tap()
+        app.field("wird.editor.target").typeText("1")
+        app.buttons["wird.editor.save"].tap()
+        app.openWird("Short wird")
+        app.element("counter.current").tap()
+        XCTAssertTrue(app.element("wird.completed").waitForExistence(timeout: 3))
+        screenshot(app, "A58-wird-completed")
+        XCTAssertTrue(app.element("wird.add").waitForExistence(timeout: 6))
+        screenshot(app, "A59-wird-list-done")
+    }
+
+    @MainActor
+    func testA8ArabicSupportAndBackup() throws {
+        let app = launchApp(LaunchOptions(language: "ar", demoData: true))
+        XCTAssertTrue(app.card("سبحان الله").waitForExistence(timeout: 10))
+        app.openSupport(moreLabel: "المزيد")
+        _ = app.buttons["support.buyOnce"].waitForExistence(timeout: 15)
+        screenshot(app, "A60-support-screen")
+        app.swipeUp()
+        screenshot(app, "A61-support-screen-bottom")
+        app.goBack()
+
+        app.element("more.settings").tap()
+        let export = app.element("settings.export")
+        app.swipeUpUntil(export)
+        screenshot(app, "A62-settings-backup")
+        export.tap()
+        sleep(2)
+        screenshot(app, "A63-backup-share-sheet")
     }
 
     // MARK: English

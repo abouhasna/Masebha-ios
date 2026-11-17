@@ -35,11 +35,7 @@ struct DhikrCard: View {
                 if isReordering {
                     // Our own ≡ (iOS's built-in handles are always gray and could vanish on some
                     // colors). Card text color: as visible as the dhikr name on every theme.
-                    Image(systemName: "line.3.horizontal")
-                        .font(.system(size: 22, weight: .bold))
-                        .frame(width: 44, height: 40)
-                        .accessibilityLabel(tr("card.reorder"))
-                        .accessibilityIdentifier("card.handle")
+                    ReorderHandle()
                 } else {
                     Menu {
                         Button(tr("common.edit"), systemImage: "pencil", action: onEdit)

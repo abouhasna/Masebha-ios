@@ -12,6 +12,7 @@ Product decisions and roadmap: [`docs/plan.md`](docs/plan.md). Read it before st
   - After each leap, give exact manual test steps, including edge cases.
 - **Keep it simple.** The owner hates overcomplexity. Prefer the simplest robust solution and avoid new dependencies.
 - **Never modify the Android project** at `C:\Users\abouh\OneDrive\Desktop\Masebha`. It is the read-only reference: its `AGENTS.md` and its `docs/` (`architecture.md`, `data-model.md`, `known-issues.md`, `features/01–13`).
+- **Never remove a supporter by mistake.** Support ends only on a definite, verified answer from Apple (a refund, or a subscription that ended more than 3 days ago). Offline, errors and unverified data keep the saved record. All of it lives in `SupporterRules` (pure, unit-tested) and `SupportStore`.
 - **If an Android feature does not map cleanly to iOS, stop and discuss it with the owner.** That covers platform limits, Apple policy, fragile imitations, and cases with a better native option. Never silently drop or compromise a feature.
 - **A green build is not proof.**
   - Unit-test business logic, persistence, and purchases.
@@ -68,7 +69,8 @@ Pure logic                    counter math, wird day rules, backup codec; no UI,
   - Semantic keys (`feature.thing`), each with both `ar` and `en` values. Read them with `tr("key")`, which follows the in-app language.
   - Never hard-code UI text.
   - `scripts/ci/check_strings.py` (also run on CI) fails on a missing key or translation.
-- **UI tests.** They drive the real app through debug-only environment hooks (`UITestHooks` in `AppStartup.swift`): `UITEST_RESET`, `UITEST_LANGUAGE`, `UITEST_SUPPORTER`, `UITEST_SKIP_COACH`, `UITEST_DISABLE_ANIMATIONS`.
+- **UI tests.** They drive the real app through debug-only environment hooks (`UITestHooks` in `AppStartup.swift`): `UITEST_RESET`, `UITEST_LANGUAGE`, `UITEST_SUPPORTER`, `UITEST_SKIP_COACH`, `UITEST_DISABLE_ANIMATIONS`, `UITEST_DEMO_DATA`.
+- **Purchases are tested without an Apple account**: `StoreKit/Supporter.storekit` is the local test store, used by `SKTestSession` in the unit and UI tests and by the Simulator.
   - Give tested elements an `accessibilityIdentifier`.
   - Save screenshots as `XCTAttachment`s and look at them after each run.
 - **Digits** are ASCII everywhere, except the Hijri date in Arabic, which uses Arabic-Indic digits (as on Android).

@@ -1,0 +1,128 @@
+{
+  "format": 1,
+  "versionCode": 46,
+  "exportedAt": "2026-11-10T12:00:00Z",
+  "zeker": [
+    {
+      "_id": 3,
+      "name": "سبحان الله",
+      "total": 1234,
+      "dawra": 33,
+      "position": 0,
+      "last_opened_at": 1731230000000,
+      "timer_delay_ms": 1000
+    },
+    {
+      "_id": 7,
+      "name": "الحمد لله",
+      "total": 0,
+      "dawra": 33,
+      "position": 1,
+      "last_opened_at": 0,
+      "timer_delay_ms": 50
+    },
+    {
+      "_id": 9,
+      "name": "أستغفر الله",
+      "total": 100250,
+      "dawra": 100,
+      "position": 2,
+      "last_opened_at": 1731000000000,
+      "timer_delay_ms": 2500
+    }
+  ],
+  "colors": {
+    "cardSelectedColor": -13730510,
+    "textSelectedColor": -1,
+    "toolsSelectedColor": -13730510,
+    "backgroundSelectedColor": -919319,
+    "toolsAccentSelectedColor": -1,
+    "textSelectedColor1": -13730510,
+    "backgroundSelectedColor1": -3084096,
+    "progressButtonSelectedColor": -13070788,
+    "progressTextSelectedColor": -1,
+    "resetSelectedColor": -13730510,
+    "resetAccentSelectedColor": 0
+  },
+  "settings": {
+    "theme": "theme3",
+    "font_size": "36",
+    "app_font": "tajawal",
+    "default_sound": true,
+    "dawra_sound": false,
+    "service_sound": true,
+    "vibration_on_tap": true,
+    "vibration_on_loop": false,
+    "vibration_tap_duration": "250",
+    "vibration_loop_duration": "600",
+    "save_counts": true,
+    "hijri_offset": "-1",
+    "reminder_enabled": true,
+    "reminder_title": "ورد اليوم",
+    "reminder_hour": 6,
+    "reminder_minute": 30,
+    "app_language": "ar"
+  },
+  "wird": {
+    "wirds": [
+      {
+        "_id": 1,
+        "name": "أذكار الصباح",
+        "position": 0,
+        "created_at": 1731000000000,
+        "last_opened_at": 1731230000000,
+        "deleted": 0
+      },
+      {
+        "_id": 2,
+        "name": "ورد قديم",
+        "position": 1,
+        "created_at": 1730000000000,
+        "last_opened_at": 0,
+        "deleted": 1
+      }
+    ],
+    "items": [
+      {
+        "_id": 10,
+        "wird_id": 1,
+        "position": 0,
+        "body": "سبحان الله وبحمده",
+        "target": 3,
+        "timer_delay_ms": 1000,
+        "total_taps": 40,
+        "cnt": 2,
+        "status": 0
+      },
+      {
+        "_id": 11,
+        "wird_id": 1,
+        "position": 1,
+        "body": "أستغفر الله",
+        "target": 1,
+        "timer_delay_ms": 0,
+        "total_taps": 12,
+        "cnt": 1,
+        "status": 1
+      }
+    ],
+    "days": [
+      {
+        "wird_id": 1,
+        "day": "2026-11-09",
+        "state": 2,
+        "taps": 4,
+        "completed_at": 1731150000000,
+        "last_activity_at": 1731150000000
+      },
+      {
+        "wird_id": 2,
+        "day": "2026-10-01",
+        "state": 1,
+        "taps": 7,
+        "completed_at": 0,
+        "last_activity_at": 1727780000000
+      }
+    ]
+  }
+}

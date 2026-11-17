@@ -8,18 +8,24 @@ final class AppEnvironment {
     let settings: AppSettings
     let entitlements: Entitlements
     let store: DhikrStore
+    let wirdStore: WirdStore
+    let backupStore: BackupStore
+    let supportStore: SupportStore
     let sound: SoundPlayer
     let haptics: Haptics
     let reminders: ReminderScheduler
     /// The reminder as iOS really has it (refreshed at launch and after every change).
     var reminderStatus: ReminderStatus = .off
 
-    init(settings: AppSettings, entitlements: Entitlements, store: DhikrStore,
+    init(settings: AppSettings, entitlements: Entitlements, database: AppDatabase,
          sound: SoundPlayer = SoundPlayer(), haptics: Haptics = Haptics(),
          reminders: ReminderScheduler = ReminderScheduler()) {
         self.settings = settings
         self.entitlements = entitlements
-        self.store = store
+        self.store = DhikrStore(database: database)
+        self.wirdStore = WirdStore(database: database)
+        self.backupStore = BackupStore(database: database)
+        self.supportStore = SupportStore(entitlements: entitlements)
         self.sound = sound
         self.haptics = haptics
         self.reminders = reminders
@@ -60,6 +66,65 @@ final class AppEnvironment {
         guard !settings.didSeed else { return }
         try store.seedIfEmpty(SeedData.items())
         settings.didSeed = true
+    }
+
+    // MARK: Wird
+
+    /// Adds the default wirds the first time a supporter opens the Wird tab (all or nothing).
+    /// If it fails, the flag stays off and it is tried again next time.
+    func addDefaultWirdsIfNeeded(now: Date = Date()) throws {
+        guard !settings.wirdDefaultsAdded else { return }
+        var wirds: [NewWird] = []
+        if let myAzkar = WirdDefaults.myAzkar(named: tr("wird.default_azkar_name"), from: try store.allDhikr()) {
+            wirds.append(myAzkar)
+        }
+        wirds += try WirdDefaults.builtIn()
+        try wirdStore.addAll(wirds, now: now)
+        settings.wirdDefaultsAdded = true
+    }
+
+    // MARK: Backup
+
+    /// Writes a backup file into a temporary folder (older ones are removed) and returns it.
+    func exportBackup(now: Date = Date()) throws -> URL {
+        let data = try backupStore.read()
+        let file = BackupFile(dhikr: data.dhikr, colors: settings.backupColors(),
+                              settings: settings.backupSettings(), wird: data.wird)
+        let json = try BackupCodec.encode(file, exportedAt: now, versionCode: Int(AppInfo.build) ?? 0)
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("backups", isDirectory: true)
+        try? FileManager.default.removeItem(at: folder)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let url = folder.appendingPathComponent(BackupCodec.fileName(for: now))
+        try json.write(to: url, options: .atomic)
+        return url
+    }
+
+    /// Reads and fully checks a backup file. Nothing is changed yet.
+    func readBackup(at url: URL) throws -> BackupFile {
+        let accessing = url.startAccessingSecurityScopedResource()
+        defer { if accessing { url.stopAccessingSecurityScopedResource() } }
+        if let size = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize, size > BackupCodec.maximumBytes {
+            throw BackupError.tooLarge
+        }
+        return try BackupCodec.decode(Data(contentsOf: url))
+    }
+
+    /// Replaces the user's data with a checked backup (a full replace, like Android).
+    /// The database part is one transaction: if it fails, nothing changes at all.
+    /// Wird data is always restored (it stays locked until the user is a supporter).
+    func importBackup(_ file: BackupFile) throws {
+        try backupStore.replace(dhikr: file.dhikr, wird: file.wird)
+        settings.applyBackup(settings: file.settings, colors: file.colors)
+        settings.didSeed = true
+        settings.languageChosen = true
+        if file.wird != nil {
+            settings.wirdDefaultsAdded = true   // the backup holds the user's own wird list
+        }
+        if let code = file.settings[AppSettings.Keys.language]?.string, let language = AppLanguage(rawValue: code),
+           language != settings.language {
+            applyLanguage(language)
+        }
+        Task { await refreshReminder() }
     }
 
     // MARK: Reminder

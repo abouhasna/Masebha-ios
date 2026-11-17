@@ -1,6 +1,6 @@
 import AVFoundation
 
-/// Plays the tap and loop-completion sounds (≈ the SoundPool code on Android).
+/// Plays the tap, loop-completion and wird "next" sounds (≈ the SoundPool code on Android).
 ///
 /// The audio session is "ambient": sounds mix with other audio (e.g. a Quran recitation) and
 /// follow the Ring/Silent switch, like other iPhone UI sounds.
@@ -8,11 +8,13 @@ final class SoundPlayer {
     private var tapPlayers: [AVAudioPlayer] = []
     private var nextTapPlayer = 0
     private var loopPlayer: AVAudioPlayer?
+    private var nextPlayer: AVAudioPlayer?
     private var sessionConfigured = false
 
     init() {
         tapPlayers = (0..<3).compactMap { _ in SoundPlayer.makePlayer("tap") }  // overlap fast taps
         loopPlayer = SoundPlayer.makePlayer("loop")
+        nextPlayer = SoundPlayer.makePlayer("next")
     }
 
     func playTap() {
@@ -29,6 +31,14 @@ final class SoundPlayer {
         configureSessionIfNeeded()
         loopPlayer.currentTime = 0
         loopPlayer.play()
+    }
+
+    /// A wird zikr reached its target (Android's wird_next sound).
+    func playNext() {
+        guard let nextPlayer else { return }
+        configureSessionIfNeeded()
+        nextPlayer.currentTime = 0
+        nextPlayer.play()
     }
 
     private func configureSessionIfNeeded() {

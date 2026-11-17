@@ -1,0 +1,66 @@
+{
+  "identifier" : "6D3A1C52",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "6740000001",
+      "localizations" : [
+        {
+          "description" : "One payment unlocks all supporter features forever.",
+          "displayName" : "One-time support",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "nafii.masebha.support.once",
+      "referenceName" : "Support once",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21600001",
+      "localizations" : [
+
+      ],
+      "name" : "Supporter",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "4.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6740000002",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Monthly support. Unlocks all supporter features.",
+              "displayName" : "Monthly support",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "nafii.masebha.support.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Support monthly",
+          "subscriptionGroupID" : "21600001",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 2,
+    "minor" : 0
+  }
+}

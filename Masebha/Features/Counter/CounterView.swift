@@ -59,7 +59,9 @@ struct CounterView: View {
                     .accessibilityElement(children: .contain)
                     .accessibilityIdentifier("counter.tapArea")
                 if !settings.hideNavButtons {
-                    navigationButtons(model, color: palette.counterText)
+                    PreviousNextBar(color: palette.counterText, previousEnabled: model.previousID != nil,
+                                    nextEnabled: model.nextID != nil, onPrevious: { model.openPrevious() },
+                                    onNext: { model.openNext() })
                 }
             }
             if powerMode {
@@ -113,15 +115,15 @@ struct CounterView: View {
     private func actionPill(_ model: CounterModel, iconColor: ARGB) -> some View {
         let icon = Color(argb: iconColor)
         let settings = environment.settings
-        return HStack(spacing: 0) {
-            pillButton(model.isTimerRunning ? "pause.fill" : "play.fill", label: tr("counter.a11y.timer"),
+        return ActionPill(color: icon) {
+            PillButton(symbol: model.isTimerRunning ? "pause.fill" : "play.fill", label: tr("counter.a11y.timer"),
                        id: "counter.timer") { model.toggleTimer() }
                 .accessibilityValue(model.isTimerRunning ? "running" : "stopped")
-            pillDivider(icon)
-            pillButton("moon.fill", label: tr("counter.a11y.power"), id: "counter.power") { powerMode = true }
-            pillDivider(icon)
-            pillButton("minus", label: tr("counter.a11y.undo"), id: "counter.undo") { model.undo() }
-            pillDivider(icon)
+            PillDivider(color: icon)
+            PillButton(symbol: "moon.fill", label: tr("counter.a11y.power"), id: "counter.power") { powerMode = true }
+            PillDivider(color: icon)
+            PillButton(symbol: "minus", label: tr("counter.a11y.undo"), id: "counter.undo") { model.undo() }
+            PillDivider(color: icon)
             Menu {
                 Button(tr("counter.menu.edit_timer"), systemImage: "timer") {
                     model.stopTimer()
@@ -141,86 +143,10 @@ struct CounterView: View {
                     Label(tr("counter.menu.today"), systemImage: "calendar")
                 }
             } label: {
-                Image(systemName: "ellipsis")
-                    .font(.system(size: 17, weight: .bold))
-                    .rotationEffect(.degrees(90))
-                    .frame(width: 40, height: 34)
-                    .contentShape(Rectangle())
+                PillMoreLabel()
             }
             .accessibilityLabel(tr("counter.a11y.more"))
             .accessibilityIdentifier("counter.more")
-        }
-        .foregroundStyle(icon)
-        .padding(.horizontal, 4)
-        .background { pillBackground(icon) }
-        // Its own identifier, so the toolbar item does not borrow the first button's one.
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("counter.actions")
-    }
-
-    /// iOS 26 already draws a glass capsule around toolbar items; earlier versions get ours.
-    @ViewBuilder
-    private func pillBackground(_ icon: Color) -> some View {
-        if #available(iOS 26.0, *) {
-            EmptyView()
-        } else {
-            Capsule().fill(icon.opacity(0.15))
-                .overlay(Capsule().stroke(icon.opacity(0.2), lineWidth: 1))
-        }
-    }
-
-    private func pillButton(_ symbol: String, label: String, id: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: symbol)
-                .font(.system(size: 17, weight: .semibold))
-                .frame(width: 40, height: 34)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(label)
-        .accessibilityIdentifier(id)
-    }
-
-    private func pillDivider(_ color: Color) -> some View {
-        Rectangle().fill(color.opacity(0.25)).frame(width: 1, height: 18)
-    }
-
-    // MARK: Previous / next
-
-    private func navigationButtons(_ model: CounterModel, color: ARGB) -> some View {
-        HStack(spacing: 16) {
-            navButton(tr("counter.previous"), color: color, enabled: model.previousID != nil, id: "counter.previous") {
-                model.openPrevious()
-            }
-            navButton(tr("counter.next"), color: color, enabled: model.nextID != nil, id: "counter.next") {
-                model.openNext()
-            }
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 8)
-    }
-
-    @ViewBuilder
-    private func navButton(_ title: String, color: ARGB, enabled: Bool, id: String,
-                           action: @escaping () -> Void) -> some View {
-        let tint = Color(argb: color)
-        if enabled {
-            Button(action: action) {
-                Text(title)
-                    .appFont(15, .medium)
-                    .foregroundStyle(tint)
-                    .frame(maxWidth: .infinity, minHeight: 44)
-                    .background(
-                        Capsule().fill(tint.opacity(0.12))
-                            .overlay(Capsule().stroke(tint.opacity(0.18), lineWidth: 1))
-                    )
-                    .contentShape(Capsule())
-            }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier(id)
-        } else {
-            // Keeps the place of the missing button (like Android's INVISIBLE), with nothing to tap.
-            Color.clear.frame(maxWidth: .infinity).frame(height: 44)
         }
     }
 }

@@ -56,6 +56,9 @@ targets:
     platform: iOS
     sources:
       - path: MasebhaTests
+      # The local App Store used by the purchase tests (no Apple account needed).
+      - path: StoreKit/Supporter.storekit
+        buildPhase: resources
     dependencies:
       - target: Masebha
     settings:
@@ -71,6 +74,8 @@ targets:
     platform: iOS
     sources:
       - path: MasebhaUITests
+      - path: StoreKit/Supporter.storekit
+        buildPhase: resources
     dependencies:
       - target: Masebha
     settings:
@@ -88,6 +93,8 @@ schemes:
         MasebhaUITests: [test]
     run:
       config: Debug
+      # Purchases in the Simulator use the local test store.
+      storeKitConfiguration: StoreKit/Supporter.storekit
     test:
       config: Debug
       gatherCoverageData: true

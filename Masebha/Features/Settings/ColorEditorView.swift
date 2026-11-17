@@ -123,7 +123,7 @@ struct ColorEditorView: View {
                 Text(tr("seed.subhan_allah"))
                     .appFont(18, .light)
                     .foregroundStyle(Color(argb: draft.counterText))
-                ProgressRing(current: 12, loopSize: 33, palette: draft, numberSize: 40)
+                ProgressRing(progress: 12.0 / 33.0, number: "12", palette: draft, numberSize: 40)
                     .frame(width: 130, height: 130)
             }
             .frame(maxWidth: .infinity)

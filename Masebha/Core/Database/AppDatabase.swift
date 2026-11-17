@@ -67,6 +67,42 @@ nonisolated final class AppDatabase: Sendable {
                 """)
         }
 
+        // Wird (supporter feature): same tables and meaning as Android's wird / wird_item / wird_day,
+        // so backups map one to one. Times are epoch milliseconds (0 = never).
+        migrator.registerMigration("v2") { db in
+            try db.execute(sql: """
+                CREATE TABLE wird (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    position INTEGER NOT NULL DEFAULT 0,
+                    createdAt INTEGER NOT NULL DEFAULT 0,
+                    lastOpenedAt INTEGER NOT NULL DEFAULT 0,
+                    deleted INTEGER NOT NULL DEFAULT 0 CHECK (deleted IN (0, 1))
+                );
+                CREATE TABLE wirdItem (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    wirdId INTEGER NOT NULL REFERENCES wird(id) ON DELETE CASCADE,
+                    position INTEGER NOT NULL DEFAULT 0,
+                    body TEXT NOT NULL,
+                    target INTEGER NOT NULL CHECK (target > 0),
+                    timerDelayMs INTEGER NOT NULL DEFAULT 1000 CHECK (timerDelayMs >= 100),
+                    totalTaps INTEGER NOT NULL DEFAULT 0 CHECK (totalTaps >= 0),
+                    count INTEGER NOT NULL DEFAULT 0 CHECK (count >= 0),
+                    status INTEGER NOT NULL DEFAULT 0 CHECK (status IN (0, 1, 2))
+                );
+                CREATE INDEX wirdItem_wirdId ON wirdItem(wirdId);
+                CREATE TABLE wirdDay (
+                    wirdId INTEGER NOT NULL REFERENCES wird(id) ON DELETE CASCADE,
+                    day TEXT NOT NULL,
+                    state INTEGER NOT NULL DEFAULT 0 CHECK (state IN (0, 1, 2)),
+                    taps INTEGER NOT NULL DEFAULT 0 CHECK (taps >= 0),
+                    completedAt INTEGER NOT NULL DEFAULT 0,
+                    lastActivityAt INTEGER NOT NULL DEFAULT 0,
+                    PRIMARY KEY (wirdId, day)
+                ) WITHOUT ROWID;
+                """)
+        }
+
         return migrator
     }
 }

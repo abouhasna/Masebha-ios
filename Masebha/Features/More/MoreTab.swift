@@ -18,7 +18,19 @@ struct MoreView: View {
     @State private var failed = false
 
     var body: some View {
+        let isSupporter = environment.entitlements.isSupporter
         List {
+            Section {
+                NavigationLink {
+                    SupportView()
+                } label: {
+                    SettingsRowLabel(icon: isSupporter ? "checkmark.seal.fill" : "heart.fill", title: tr("more.support"),
+                                     subtitle: isSupporter ? tr("more.support.thanks") : tr("more.support.summary"))
+                }
+                .settingsRowBackground()
+                .accessibilityIdentifier("more.support")
+            }
+
             Section {
                 HStack {
                     Text(tr("more.total"))

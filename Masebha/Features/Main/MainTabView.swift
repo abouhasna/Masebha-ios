@@ -2,9 +2,10 @@ import SwiftUI
 
 /// The bottom tabs: Azkar | Wird | More (replaces the Android bottom navigation and side drawer).
 ///
-/// Apple's standard tab bar, with no colors forced on it: iOS colors the bar and its icons
-/// itself (on iOS 26 the glass picks dark or light icons from what is behind it), so it stays
-/// readable on every theme. The selected tab uses iOS's default color.
+/// Apple's standard tab bar: iOS colors the bar and its icons itself (on iOS 26 the glass picks
+/// dark or light icons from what is behind it), so it stays readable on every theme. Only the
+/// selected tab is green: a darker green on light glass, a brighter one on dark glass (the
+/// "TabSelected" color has both, and iOS picks).
 struct MainTabView: View {
     @State private var selection: Tab = .azkar
 
@@ -18,13 +19,14 @@ struct MainTabView: View {
                 .tabItem { Label { Text(tr("tab.azkar")) } icon: { Image("TabAzkar") } }
                 .tag(Tab.azkar)
                 .accessibilityIdentifier("tab.azkar")
-            WirdPlaceholderView()
+            WirdTab()
                 .tabItem { Label { Text(tr("tab.wird")) } icon: { Image("TabWird") } }
                 .tag(Tab.wird)
             MoreTab()
                 .tabItem { Label(tr("tab.more"), systemImage: "ellipsis.circle.fill") }
                 .tag(Tab.more)
         }
+        .tint(Color("TabSelected"))
     }
 }
 

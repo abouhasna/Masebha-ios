@@ -55,10 +55,14 @@ struct AzkarListView: View {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            if !reordering { addButton(palette) }
+            if !reordering {
+                FloatingAddButton(palette: palette, label: tr("list.add"), id: "list.add") { editor = .add }
+            }
         }
         .safeAreaInset(edge: .top, spacing: 0) {
-            if reordering { reorderBar(palette) }
+            if reordering {
+                ReorderBar(palette: palette) { withAnimation { reordering = false } }
+            }
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -97,54 +101,6 @@ struct AzkarListView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { reload() }
         }
-    }
-
-    private func addButton(_ palette: ThemePalette) -> some View {
-        Button {
-            editor = .add
-        } label: {
-            Image(systemName: "plus")
-                .font(.system(size: 28, weight: .regular))
-                .foregroundStyle(Color(argb: ColorMath.readableIcon(accent: palette.toolsAccent, on: palette.tools)))
-                .frame(width: 60, height: 60)
-                .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Color(argb: palette.tools)))
-                .shadow(color: .black.opacity(0.3), radius: 6, y: 3)
-        }
-        .buttonStyle(.plain)
-        .padding(.trailing, 20)
-        .padding(.bottom, 16)
-        .accessibilityLabel(tr("list.add"))
-        .accessibilityIdentifier("list.add")
-    }
-
-    /// Under the toolbar, in its colors, while reorder mode is on: the hint and "Done".
-    /// "Done" is here rather than in the toolbar: iOS 26 drew it there as a pale glass capsule
-    /// with white text on some themes. Here its contrast is ours to guarantee.
-    private func reorderBar(_ palette: ThemePalette) -> some View {
-        let color = Color(argb: ColorMath.readableIcon(accent: palette.toolsAccent, on: palette.tools))
-        return HStack(spacing: 12) {
-            Text(tr("list.reorder.hint"))
-                .appFont(14, .medium)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .accessibilityIdentifier("list.reorderHint")
-            Button {
-                withAnimation { reordering = false }
-            } label: {
-                Text(tr("common.done"))
-                    .appFont(16, .bold)
-                    .padding(.horizontal, 18)
-                    .padding(.vertical, 7)
-                    .background(Capsule().fill(color.opacity(0.18)))
-                    .overlay(Capsule().stroke(color.opacity(0.45), lineWidth: 1))
-                    .contentShape(Capsule())
-            }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("list.doneReordering")
-        }
-        .foregroundStyle(color)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(Color(argb: palette.tools))
     }
 
     // MARK: Actions

@@ -10,7 +10,7 @@ enum AppStartup {
         do {
             let database = try AppDatabase.openDefault()
             let environment = AppEnvironment(settings: AppSettings(), entitlements: Entitlements(),
-                                             store: DhikrStore(database: database))
+                                             database: database)
             Localizer.shared.setLanguage(environment.settings.language)
             if environment.settings.languageChosen {
                 // Completes a first launch that was interrupted after the language choice.
@@ -19,6 +19,7 @@ enum AppStartup {
             #if DEBUG
             try UITestHooks.configure(environment)
             #endif
+            environment.supportStore.start()   // listens for purchases from launch (Apple's rule)
             return .success(environment)
         } catch {
             return .failure(error)
@@ -52,7 +53,7 @@ enum UITestHooks {
             try environment.completeOnboarding(with: language)
         }
         if values["UITEST_SUPPORTER"] == "1" {
-            environment.entitlements.isSupporter = true
+            environment.entitlements.debugSupporter = true
         }
         if values["UITEST_SKIP_COACH"] == "1" {
             environment.settings.coachMarkSeen = true
@@ -81,7 +82,10 @@ enum UITestHooks {
             try store.markOpened(id, at: entry.opened)
         }
         _ = try store.add(name: ayatAlKursi, loopSize: 1, initialTotal: 7)
+        _ = try store.add(name: mediumLongDhikr, loopSize: 100, initialTotal: 0)
     }
+
+    static let mediumLongDhikr = "لا إله إلا الله وحده لا شريك له، له الملك وله الحمد، يحيي ويميت، وهو حي لا يموت، بيده الخير، وهو على كل شيء قدير"
 
     static let ayatAlKursi = "{اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ وَلَا يَئُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ}"
 }

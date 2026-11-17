@@ -107,6 +107,30 @@ Acceptance:
   - If the screenshots show that iOS does not switch shades inside the tab bar, use a single green that is readable on both.
 - Acceptance: the selected tab is readable in screenshots on every theme. The hardest case is the green theme, with green cards behind the bar.
 
+## Decisions made in Leap 2
+
+**Supporter status (the critical part).** StoreKit 2 is the only source; the device keeps a saved record (`SupporterRules`, `Entitlements`).
+- A supporter is never removed by being offline, by an error, by a slow App Store or by unverified data: "no answer" always keeps the saved record.
+- The one-time purchase ends only with a verified refund from Apple.
+- The monthly support ends only when Apple reports it expired or revoked, with a verified date more than 3 days old (renewals can reach the device late). Billing retry and grace periods count as supporting.
+- `Transaction.updates` is observed from launch. Every transaction is finished after it is recorded. "Ask to Buy" unlocks when approved. "Restore purchases" calls `AppStore.sync()`.
+- Deliberately generous: a phone restored from an iCloud backup keeps the saved record, even if the Apple ID changed. It is a thank-you tier, so a wrong "yes" costs less than a wrong "no".
+- Supporter status is never read from or written to a backup file.
+
+**Products.** `nafii.masebha.support.monthly` (auto-renewable, group "Supporter") and `nafii.masebha.support.once` (non-consumable). Prices are set in App Store Connect and shown live. The Support screen shows the auto-renewal text, Apple's standard Terms of Use and the privacy policy link (required by Apple).
+
+**Wird.**
+- Same tables, rules and default texts as Android. `WirdDefaults.json` is generated from `WirdDefaultData.java`.
+- Non-supporters see an explanation page in the Wird tab (Android shows a popup). The data is never touched when support ends.
+- The session uses the same text-first layout, pill, power mode and previous/next bar as the counter.
+
+**Backup (format 1, both directions).**
+- Settings are written with Android's value types: list choices as text ("30"), the reminder time as numbers. Every imported value is checked; a wrong one is ignored.
+- Import is a full replace in one database transaction, after the whole file is checked: on any problem nothing changes.
+- The wird section is always imported (it stays locked until the user supports). It is exported only when the user has wird data, so an Android import never replaces that phone's wirds with an empty list.
+
+**Long dhikr (owner's rule, follow-up 1).** With the small 16 pt size in step 3, even the 4.7" iPhone SE with the biggest font and the "today" row keeps the 240 pt ring. Only a small iPhone with Display Zoom can shrink it.
+
 ## Implementation choices made in Leap 1
 
 These are small differences from Android, decided during the build. Each one is reversible.
@@ -122,8 +146,7 @@ These are small differences from Android, decided during the build. Each one is 
 - **Apple's standard tab bar, with no colors forced on it** (owner's choice). iOS colors the bar and its icons by itself. On iOS 26 the glass picks dark or light icons from what is behind it. The selected tab uses iOS's default color.
   - Earlier builds forced the bar to "dark" from the toolbar color, which gave white icons on light glass.
   - Each tab remembers its screen (for example, More stays on Settings).
-- **Counter ring size.** It is at least 240 pt on every iPhone, with one exception: the 4.7" iPhone SE with the biggest font and the "today" row on. There the ring shrinks to about 208 pt, so that it never goes under the buttons.
-- **Taps on the dhikr text count**, unlike on Android. A swipe scrolls the text (scroll mode) or the page (no scroll mode), and never counts.
+- **Taps on the dhikr text count**, unlike on Android. A swipe on a long text scrolls it and never counts.
 - **The "+" button is always visible.** The list gets extra space at the bottom so it never hides the last card; Android hid it while scrolling.
 - **Add/Edit is an iOS sheet with inline error messages**, instead of a dialog with toasts. The validation rules are the same.
 - **Counter reset is an iOS action sheet** with "Reset" / "Reset all" / "Cancel".
@@ -133,6 +156,8 @@ These are small differences from Android, decided during the build. Each one is 
 
 ## Waiting on the owner
 
-- Android backup files to use as test fixtures (needed in Leap 2).
+- Real Android backup files, to confirm the import with real data (a hand-made Android-format file is tested meanwhile).
+- The privacy policy page at `https://tasbeeh-app.pages.dev/privacy` (linked from the Support screen; required before submission).
+- The two products in App Store Connect with the IDs above, and their prices (needs the $99 account).
 - A sharper 1024 px app icon before release. The current icon is the 512 px Android asset, upscaled.
 - The Firestore documents and collection for iOS (Leap 3).

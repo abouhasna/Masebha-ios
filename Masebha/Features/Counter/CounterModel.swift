@@ -11,7 +11,7 @@ final class CounterModel {
     private(set) var dhikr: Dhikr
     private(set) var state: CounterState
     private(set) var timerDelayMs: Int
-    private(set) var isTimerRunning = false
+    var isTimerRunning: Bool { timer.isRunning }
     private(set) var previousID: Int64?
     private(set) var nextID: Int64?
     /// Set when the dhikr disappeared or the database refused a write; the screen shows an alert.
@@ -23,7 +23,7 @@ final class CounterModel {
     }
 
     @ObservationIgnored private let environment: AppEnvironment
-    @ObservationIgnored private var timerTask: Task<Void, Never>?
+    @ObservationIgnored private let timer = AutoTapper()
     private var settings: AppSettings { environment.settings }
     private var store: DhikrStore { environment.store }
 
@@ -110,39 +110,16 @@ final class CounterModel {
         isTimerRunning ? stopTimer() : startTimer()
     }
 
-    /// Starts counting automatically every `timerDelayMs`, at a fixed rate.
+    /// Starts counting automatically every `timerDelayMs`, at a fixed rate (screen kept on).
     func startTimer() {
         guard !isTimerRunning, problem == nil else { return }
-        isTimerRunning = true
-        UIApplication.shared.isIdleTimerDisabled = true  // keep the screen on, like Android
-        let interval = Double(timerDelayMs) / 1000
-        timerTask = Task { [weak self] in
-            var planned = ProcessInfo.processInfo.systemUptime + interval
-            while true {
-                let wait = planned - ProcessInfo.processInfo.systemUptime
-                if wait > 0 {
-                    do {
-                        try await Task.sleep(for: .seconds(wait), tolerance: .milliseconds(5))
-                    } catch {
-                        return  // cancelled: stopTimer() was called
-                    }
-                }
-                // Stopped while sleeping? Then this tick must not count.
-                guard !Task.isCancelled, let self, self.isTimerRunning else { return }
-                self.count()
-                planned = FixedRate.nextTick(afterPlanned: planned, interval: interval,
-                                             now: ProcessInfo.processInfo.systemUptime)
-            }
+        timer.start(intervalMs: timerDelayMs) { [weak self] in
+            self?.count()
         }
     }
 
     func stopTimer() {
-        timerTask?.cancel()
-        timerTask = nil
-        if isTimerRunning {
-            isTimerRunning = false
-            UIApplication.shared.isIdleTimerDisabled = false
-        }
+        timer.stop()
     }
 
     /// From the timer dialog: saves the new interval for this dhikr and starts the timer.

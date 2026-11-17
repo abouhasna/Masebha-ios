@@ -3,6 +3,9 @@ import XCTest
 /// The long dhikr added by the demo data (UITEST_DEMO_DATA), in every language.
 let ayatAlKursi = "{اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ وَلَا يَئُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ}"
 
+/// A medium-long dhikr added by the demo data (fits at the user's size with a smaller ring).
+let mediumLongDhikr = "لا إله إلا الله وحده لا شريك له، له الملك وله الحمد، يحيي ويميت، وهو حي لا يموت، بيده الخير، وهو على كل شيء قدير"
+
 /// Launch options understood by the app's debug-only test hooks (UITestHooks).
 struct LaunchOptions {
     var reset = true
@@ -70,7 +73,11 @@ extension XCUIApplication {
     /// Lists only draw the cards on screen: scrolls down until the card is visible.
     @discardableResult
     func scrollToCard(_ name: String, maxSwipes: Int = 6) -> XCUIElement {
-        let target = card(name)
+        scrollTo(card(name), maxSwipes: maxSwipes)
+    }
+
+    @discardableResult
+    func scrollTo(_ target: XCUIElement, maxSwipes: Int = 6) -> XCUIElement {
         if target.waitForExistence(timeout: 5) && target.isHittable { return target }
         var swipes = 0
         while !(target.exists && target.isHittable) && swipes < maxSwipes {
@@ -96,6 +103,37 @@ extension XCUIApplication {
             title.tap()
         }
         XCTAssertTrue(counter.waitForExistence(timeout: 10), "Counter did not open")
+    }
+
+    /// The card of the Wird list showing `name`.
+    func wirdCard(_ name: String) -> XCUIElement {
+        descendants(matching: .any).matching(identifier: "wird.card")
+            .containing(NSPredicate(format: "label == %@", name)).firstMatch
+    }
+
+    func openWird(_ name: String) {
+        let title = scrollTo(wirdCard(name)).staticTexts.matching(identifier: "wird.card.name").firstMatch
+        XCTAssertTrue(title.waitForExistence(timeout: 10), "Wird \(name) not found")
+        title.tap()
+        XCTAssertTrue(element("counter.current").waitForExistence(timeout: 10), "Wird session did not open")
+    }
+
+    func wirdMenu(_ name: String, choose action: String) {
+        let menu = scrollTo(wirdCard(name)).buttons.matching(identifier: "wird.card.menu").firstMatch
+        XCTAssertTrue(menu.waitForExistence(timeout: 5))
+        menu.tap()
+        tapItem(action)
+    }
+
+    func wirdStatus(_ name: String) -> String {
+        scrollTo(wirdCard(name)).descendants(matching: .any).matching(identifier: "wird.card.status").firstMatch.label
+    }
+
+    /// A text field or, for multi-line fields, a text view, by identifier (the n-th one).
+    func field(_ identifier: String, at index: Int = 0) -> XCUIElement {
+        let fields = textFields.matching(identifier: identifier)
+        return fields.count > index ? fields.element(boundBy: index)
+            : textViews.matching(identifier: identifier).element(boundBy: index)
     }
 
     func cardMenu(_ name: String, choose action: String) {
@@ -150,6 +188,15 @@ extension XCUIApplication {
         let button = tabButton(label)
         XCTAssertTrue(button.waitForExistence(timeout: 5), "Tab \(label) not found")
         button.tap()
+    }
+
+    /// Opens the Support screen from the More tab.
+    func openSupport(moreLabel: String = "More") {
+        tab(moreLabel)
+        let row = element("more.support")
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
+        XCTAssertTrue(element("support.status").waitForExistence(timeout: 5))
     }
 
     /// Opens Settings from the More tab.

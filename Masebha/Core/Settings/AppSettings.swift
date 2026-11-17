@@ -37,7 +37,6 @@ final class AppSettings {
 
     // MARK: Counter
 
-    var scrollableText: Bool { didSet { defaults.set(scrollableText, forKey: Keys.scrollableText) } }
     var resumeLoop: Bool { didSet { defaults.set(resumeLoop, forKey: Keys.resumeLoop) } }
     var stopTimerOnLoop: Bool { didSet { defaults.set(stopTimerOnLoop, forKey: Keys.stopTimerOnLoop) } }
     var nextDhikrOnLoop: Bool { didSet { defaults.set(nextDhikrOnLoop, forKey: Keys.nextDhikrOnLoop) } }
@@ -50,6 +49,12 @@ final class AppSettings {
     var loopVibrationMs: Int { didSet { defaults.set(loopVibrationMs, forKey: Keys.loopVibrationMs) } }
     var showTodayCount: Bool { didSet { defaults.set(showTodayCount, forKey: Keys.showTodayCount) } }
     var coachMarkSeen: Bool { didSet { defaults.set(coachMarkSeen, forKey: Keys.coachMarkSeen) } }
+
+    // MARK: Wird
+
+    /// True once the default wirds were added (or a backup with wird data was restored), so they
+    /// are never added twice.
+    var wirdDefaultsAdded: Bool { didSet { defaults.set(wirdDefaultsAdded, forKey: Keys.wirdDefaultsAdded) } }
 
     // MARK: Hijri date
 
@@ -77,7 +82,6 @@ final class AppSettings {
         fontKey = FontRegistry.all.contains { $0.key == storedFont } ? storedFont : FontRegistry.defaultKey
         fontSize = read.int(Keys.fontSize, allowed: SettingOptions.fontSizes, default: SettingOptions.defaultFontSize)
 
-        scrollableText = read.bool(Keys.scrollableText, default: true)
         resumeLoop = read.bool(Keys.resumeLoop, default: false)
         stopTimerOnLoop = read.bool(Keys.stopTimerOnLoop, default: false)
         nextDhikrOnLoop = read.bool(Keys.nextDhikrOnLoop, default: false)
@@ -92,6 +96,8 @@ final class AppSettings {
                                    default: SettingOptions.defaultLoopVibrationMs)
         showTodayCount = read.bool(Keys.showTodayCount, default: false)
         coachMarkSeen = read.bool(Keys.coachMarkSeen, default: false)
+
+        wirdDefaultsAdded = read.bool(Keys.wirdDefaultsAdded, default: false)
 
         hijriOffset = read.int(Keys.hijriOffset, allowed: SettingOptions.hijriOffsets, default: 0)
 
@@ -153,7 +159,6 @@ final class AppSettings {
         static let theme = "theme"
         static let font = "app_font"
         static let fontSize = "font_size"
-        static let scrollableText = "scrollable_text"
         static let resumeLoop = "save_counts"
         static let stopTimerOnLoop = "dawra_stop_timer"
         static let nextDhikrOnLoop = "dawra_next_zeker"
@@ -167,6 +172,7 @@ final class AppSettings {
         static let showTodayCount = "today_count"
         static let coachMarkSeen = "coach_mark_tapped"
         static let hijriOffset = "hijri_offset"
+        static let wirdDefaultsAdded = "wird_defaults_added"
         static let reminderEnabled = "reminder_enabled"
         static let reminderTitle = "reminder_title"
         static let reminderHour = "reminder_hour"
