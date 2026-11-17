@@ -76,15 +76,22 @@ extension XCUIApplication {
         scrollTo(card(name), maxSwipes: maxSwipes)
     }
 
+    /// Scrolls until the element is visible and not under the floating tab bar.
     @discardableResult
     func scrollTo(_ target: XCUIElement, maxSwipes: Int = 6) -> XCUIElement {
-        if target.waitForExistence(timeout: 5) && target.isHittable { return target }
+        _ = target.waitForExistence(timeout: 5)
         var swipes = 0
-        while !(target.exists && target.isHittable) && swipes < maxSwipes {
+        while !isClear(target) && swipes < maxSwipes {
             swipeUp()
             swipes += 1
         }
         return target
+    }
+
+    private func isClear(_ element: XCUIElement) -> Bool {
+        guard element.exists, element.isHittable else { return false }
+        let bar = tabBars.firstMatch
+        return !bar.exists || element.frame.maxY <= bar.frame.minY
     }
 
     /// Whether a card with this name exists anywhere in the list (scrolling if needed).

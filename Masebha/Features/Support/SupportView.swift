@@ -9,8 +9,12 @@ enum SupportStyle {
 enum AppLinks {
     /// Apple's standard Terms of Use (EULA).
     static let terms = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!
-    /// The owner publishes this page before the App Store submission.
-    static let privacy = URL(string: "https://tasbeeh-app.pages.dev/privacy")!
+    /// The privacy policy on the app's website, in the app's language.
+    static var privacy: URL {
+        Localizer.shared.language == .english
+            ? URL(string: "https://tasbeeh-app.pages.dev/en/privacy/")!
+            : URL(string: "https://tasbeeh-app.pages.dev/privacy/")!
+    }
     static let contact = URL(string: "mailto:masebha0@gmail.com")!
 }
 

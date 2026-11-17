@@ -306,8 +306,7 @@ final class VisualTourTests: XCTestCase {
         app.buttons["wird.editor.save"].tap()
         app.openWird("Short wird")
         app.element("counter.current").tap()
-        XCTAssertTrue(app.element("wird.completed").waitForExistence(timeout: 3))
-        screenshot(app, "A58-wird-completed")
+        screenshot(app, "A58-wird-completed")   // at once: the message closes after about a second
         XCTAssertTrue(app.element("wird.add").waitForExistence(timeout: 6))
         screenshot(app, "A59-wird-list-done")
     }

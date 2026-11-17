@@ -1,4 +1,14 @@
 {
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
   "identifier" : "6D3A1C52",
   "nonRenewingSubscriptions" : [
 
@@ -7,7 +17,7 @@
     {
       "displayPrice" : "9.99",
       "familyShareable" : false,
-      "internalID" : "6740000001",
+      "internalID" : "6D3A1C53",
       "localizations" : [
         {
           "description" : "One payment unlocks all supporter features forever.",
@@ -21,11 +31,22 @@
     }
   ],
   "settings" : {
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
 
+    ],
+    "_timeRate" : 0
   },
   "subscriptionGroups" : [
     {
-      "id" : "21600001",
+      "id" : "6D3A1C54",
       "localizations" : [
 
       ],
@@ -35,14 +56,26 @@
           "adHocOffers" : [
 
           ],
+          "billingPlans" : [
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "4.99",
+              "displayPrice" : "4.99",
+              "internalID" : "6D3A1C55",
+              "isEnabled" : true
+            }
+          ],
           "codeOffers" : [
 
           ],
           "displayPrice" : "4.99",
           "familyShareable" : false,
           "groupNumber" : 1,
-          "internalID" : "6740000002",
+          "internalID" : "6D3A1C56",
           "introductoryOffer" : null,
+          "introductoryOffers" : [
+
+          ],
           "localizations" : [
             {
               "description" : "Monthly support. Unlocks all supporter features.",
@@ -53,14 +86,17 @@
           "productID" : "nafii.masebha.support.monthly",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Support monthly",
-          "subscriptionGroupID" : "21600001",
-          "type" : "RecurringSubscription"
+          "subscriptionGroupID" : "6D3A1C54",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         }
       ]
     }
   ],
   "version" : {
-    "major" : 2,
+    "major" : 5,
     "minor" : 0
   }
 }

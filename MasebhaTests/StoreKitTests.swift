@@ -28,6 +28,13 @@ final class StoreKitTests {
     }
 
     @Test func productsLoadWithTheirPrices() async {
+        // StoreKit's own answer first, so a failure says exactly what the test store returned.
+        do {
+            let products = try await Product.products(for: SupporterProduct.all)
+            #expect(Set(products.map(\.id)) == Set(SupporterProduct.all), "The test store returned \(products.map(\.id))")
+        } catch {
+            Issue.record("Product.products failed: \(error)")
+        }
         let (store, _, _) = makeStore()
         await store.loadProducts()
         #expect(store.availability == .ready)
