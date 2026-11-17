@@ -89,7 +89,13 @@ extension XCUIApplication {
         let title = scrollToCard(name).staticTexts.matching(identifier: "card.name").firstMatch
         XCTAssertTrue(title.waitForExistence(timeout: 10), "Card \(name) not found")
         title.tap()
-        XCTAssertTrue(element("counter.current").waitForExistence(timeout: 10), "Counter did not open")
+        let counter = element("counter.current")
+        // A slow CI simulator sometimes drops a synthesized tap. Tap again only while the list is
+        // still showing, so a retry can never land on (and count on) the counter screen.
+        if !counter.waitForExistence(timeout: 5) && title.exists && title.isHittable {
+            title.tap()
+        }
+        XCTAssertTrue(counter.waitForExistence(timeout: 10), "Counter did not open")
     }
 
     func cardMenu(_ name: String, choose action: String) {

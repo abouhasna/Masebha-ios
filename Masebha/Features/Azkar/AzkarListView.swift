@@ -39,8 +39,8 @@ struct AzkarListView: View {
             .onMove(perform: move)
         }
         .listStyle(.plain)
-        // System parts of the list (menus, the lifted card) follow the background: dark on dark themes.
-        .environment(\.colorScheme, ColorMath.isLight(palette.background) ? .light : .dark)
+        // No forced light/dark mode here: iOS 26 would pass it on to the glass buttons of the
+        // toolbar ("Done" became a pale capsule with white text on light themes).
         .scrollContentBackground(.hidden)
         .contentMargins(.bottom, 88, for: .scrollContent)   // the last card is never hidden by "+"
         .background(ThemedBackground(color: palette.background, pattern: environment.showsPattern))
