@@ -69,7 +69,9 @@ struct AzkarListView: View {
                             language: environment.settings.language, now: now)
             }
             if reordering {
-                ToolbarItem(placement: .confirmationAction) {
+                // A plain bar button (not the "confirmation" style, which iOS 26 draws as a pale
+                // filled capsule that made the white text hard to read on light themes).
+                ToolbarItem(placement: .topBarTrailing) {
                     Button(tr("common.done")) {
                         withAnimation { reordering = false }
                     }

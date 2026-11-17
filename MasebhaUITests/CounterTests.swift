@@ -135,7 +135,7 @@ final class CounterTests: XCTestCase {
         let text = app.element("counter.dhikrText")
         for _ in 0..<2 { text.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1)).tap() }
         XCTAssertEqual(app.value("counter.total"), "13")
-        app.element("counter.page").swipeUp()
+        app.element("counter.tapArea").swipeUp()   // scrolls the page
         XCTAssertEqual(app.value("counter.total"), "13")
         app.count(1)
         XCTAssertEqual(app.value("counter.total"), "14")
