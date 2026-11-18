@@ -1,104 +1,97 @@
 import SwiftUI
 import UIKit
 
-/// Shows this launch's popup, if any (see `LaunchPopups`): the static welcome, an announcement
-/// from Firestore, or a promo (Telegram, support).
+/// Shows this launch's popup, if any (see `LaunchPopups`): the static welcome, the Telegram
+/// invitation, or an announcement from Firestore. All use our own sheet, so they always follow the
+/// app's language direction (system alerts follow the phone's language until the app restarts).
 struct LaunchPopupsPresenter: ViewModifier {
     @Environment(AppEnvironment.self) private var environment
-    @Environment(\.openURL) private var openURL
-    @State private var alert: PromoAlert?
-    @State private var announcement: Announcement?
-    @State private var showSupport = false
-
-    enum PromoAlert: Identifiable {
-        case welcome, telegram, support
-        var id: Self { self }
-    }
+    @State private var popup: PopupContent?
 
     func body(content: Content) -> some View {
         content
             .task {
-                guard let popup = await environment.nextLaunchPopup() else { return }
-                switch popup {
-                case .welcome: alert = .welcome
-                case .telegram: alert = .telegram
-                case .support: alert = .support
-                case .announcement(let item): announcement = item
-                }
+                guard let next = await environment.nextLaunchPopup() else { return }
+                popup = PopupContent(next)
             }
-            .alert(title(alert), isPresented: isPresented($alert), presenting: alert) { kind in
-                switch kind {
-                case .welcome:
-                    Button(tr("welcome.start"), role: .cancel) {}
-                case .telegram:
-                    Button(tr("promo.telegram.button")) { openURL(AppLinks.telegram) }
-                    Button(tr("common.later"), role: .cancel) {}
-                case .support:
-                    Button(tr("promo.support.button")) { showSupport = true }
-                    Button(tr("common.later"), role: .cancel) {}
-                }
-            } message: { kind in
-                Text(message(kind))
-            }
-            .sheet(item: $announcement) { item in
-                AnnouncementSheet(announcement: item)
-                    .appLanguageAndFont(environment)
-            }
-            .sheet(isPresented: $showSupport) {
-                NavigationStack { SupportView() }
+            .sheet(item: $popup) { item in
+                PopupSheet(content: item)
                     .appLanguageAndFont(environment)
             }
     }
+}
 
-    private func title(_ kind: PromoAlert?) -> String {
-        switch kind {
-        case .welcome: tr("welcome.title")
-        case .telegram: tr("promo.telegram.title")
-        case .support: tr("promo.support.title")
-        case nil: ""
-        }
-    }
+/// What one popup shows: an optional picture, a title, a text, a main button and a close button.
+struct PopupContent: Identifiable {
+    let id = UUID()
+    var image: Data?
+    var symbol: String?
+    var title: String
+    var message: String
+    /// The main button (it closes the popup, after opening `link` if there is one).
+    var buttonText: String?
+    var link: URL?
+    /// The second, quieter button; nil when the main button is enough.
+    var closeText: String?
 
-    private func message(_ kind: PromoAlert) -> String {
-        switch kind {
-        case .welcome: tr("welcome.message")
-        case .telegram: tr("promo.telegram.message")
-        case .support: tr("promo.support.message")
+    init(_ popup: LaunchPopup) {
+        switch popup {
+        case .welcome:
+            symbol = "hand.wave.fill"
+            title = tr("welcome.title")
+            message = tr("welcome.message")
+            buttonText = tr("welcome.start")
+        case .telegram:
+            symbol = "paperplane.circle.fill"
+            title = tr("promo.telegram.title")
+            message = tr("promo.telegram.message")
+            buttonText = tr("promo.telegram.button")
+            link = AppLinks.telegram
+            closeText = tr("common.later")
+        case .announcement(let item):
+            image = item.image
+            title = item.title
+            message = item.message
+            buttonText = item.buttonText
+            link = item.buttonLink
+            closeText = tr("common.close")
         }
     }
 }
 
-/// The announcement popup: an optional image, a title, a text and an optional button (Android's
-/// popup document). A broken image is simply not shown.
-struct AnnouncementSheet: View {
-    let announcement: Announcement
+struct PopupSheet: View {
+    let content: PopupContent
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
 
     var body: some View {
         ScrollView {
             VStack(spacing: 18) {
-                if let data = announcement.image, let image = UIImage(data: data) {
+                if let data = content.image, let image = UIImage(data: data) {   // a broken image is skipped
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFit()
                         .frame(maxHeight: 240)
                         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                } else if let symbol = content.symbol {
+                    Image(systemName: symbol)
+                        .font(.system(size: 50))
+                        .foregroundStyle(Color(argb: SettingsStyle.accent))
                 }
-                if !announcement.title.isEmpty {
-                    Text(announcement.title)
+                if !content.title.isEmpty {
+                    Text(content.title)
                         .appFont(22, .bold)
                         .multilineTextAlignment(.center)
                 }
-                if !announcement.message.isEmpty {
-                    Text(announcement.message)
+                if !content.message.isEmpty {
+                    Text(content.message)
                         .appFont(16, .regular)
                         .multilineTextAlignment(.center)
                         .opacity(0.85)
                 }
-                if let buttonText = announcement.buttonText {
+                if let buttonText = content.buttonText {
                     Button {
-                        if let link = announcement.buttonLink { openURL(link) }
+                        if let link = content.link { openURL(link) }
                         dismiss()
                     } label: {
                         Text(buttonText)
@@ -108,18 +101,21 @@ struct AnnouncementSheet: View {
                             .background(Capsule().fill(Color(argb: SettingsStyle.accent)))
                     }
                     .buttonStyle(.plain)
-                    .accessibilityIdentifier("announcement.button")
+                    .accessibilityIdentifier("popup.button")
                 }
-                Button(tr("common.close")) { dismiss() }
-                    .appFont(16, .medium)
-                    .tint(Color(argb: SettingsStyle.accent))
-                    .accessibilityIdentifier("announcement.close")
+                if let closeText = content.closeText {
+                    Button(closeText) { dismiss() }
+                        .appFont(16, .medium)
+                        .tint(Color(argb: SettingsStyle.accent))
+                        .accessibilityIdentifier("popup.close")
+                }
             }
             .foregroundStyle(.white)
             .padding(24)
+            .padding(.top, 8)
         }
         .background(Color(argb: SettingsStyle.background).ignoresSafeArea())
         .presentationDetents([.medium, .large])
-        .accessibilityIdentifier("announcement")
+        .accessibilityIdentifier("popup")
     }
 }

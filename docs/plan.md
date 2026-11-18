@@ -139,13 +139,14 @@ Acceptance:
 
 ## Decisions made in Leap 3 (first part)
 
-- **One popup per launch at most** (Android order, `LaunchPopups`, unit-tested): the welcome for a new user, otherwise a newer announcement, otherwise a promo. Each one is marked as shown when it appears, whatever the answer.
-- **Welcome:** static, built into the app (Arabic and English), shown once to new users.
+- **One popup per launch at most** (Android order, `LaunchPopups`, unit-tested): the welcome for a new user, otherwise a newer announcement, otherwise the Telegram invitation. Each one is marked as shown when it appears, whatever the answer.
+- **All popups use our own sheet** (`PopupSheet`), not system alerts: system alerts follow the phone's language until the app restarts, so an Arabic welcome showed left-to-right.
+- **Welcome:** static, built into the app (Arabic and English), shown once to new users. It points to the many options in Settings (owner: no mention of the "+" button).
 - **Announcement:** read with one HTTPS request (Firestore REST, no Firebase SDK) from project `masebhaproject`, collection `masebha`, document **`ios_popup`** (iOS only, same fields as Android's popup). Every field is checked: a broken image or a non-web link is left out, a broken document shows nothing. Each version is shown once.
-- **Promos:** Telegram from launch 13, Support from launch 20 (non-supporters only), each once.
+- **Promos:** only the Telegram invitation, from launch 13, once. **No support popup** (owner's decision): non-supporters already see the explanation in the Wird tab.
 - **Rating:** Apple's own prompt, once, when the user comes back from counting, from launch 7 (Apple advises against asking at launch; Apple shows it at most 3 times a year). More → "Rate the app" opens the App Store review page once the app's id is known (Apple's prompt until then).
 - **Sharing:** More → "Share the app" sends Android's share text with the App Store link (the website until the app's id is known: `AppLinks.appStoreID`).
-- **Wird session (owner's review):** "1 / 23" next to the progress bar, above the zikr (no title, like Android); "Wird completed" on a green card.
+- **Wird (owner's review):** "1 / 23" next to the progress bar, above the zikr (no title, like Android); "Wird completed" on a green card; the list's "Done" badge is white on green.
 - **Font step-down (owner's request):** before the 16 pt fallback, the font gets one point smaller at a time, so a slightly long zikr keeps a large size. Measurements are cached.
 
 **Firebase setup (owner).** In the Firebase console of project `masebhaproject` → Firestore → collection `masebha` → add a document with ID `ios_popup`:

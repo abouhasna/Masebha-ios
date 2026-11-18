@@ -67,7 +67,6 @@ final class AppSettings {
     }
     var reviewRequested: Bool { didSet { defaults.set(reviewRequested, forKey: Keys.reviewRequested) } }
     var telegramPromoShown: Bool { didSet { defaults.set(telegramPromoShown, forKey: Keys.telegramPromoShown) } }
-    var supportPromoShown: Bool { didSet { defaults.set(supportPromoShown, forKey: Keys.supportPromoShown) } }
 
     // MARK: Hijri date
 
@@ -117,7 +116,6 @@ final class AppSettings {
         announcementVersionShown = max(0, defaults.object(forKey: Keys.announcementVersionShown) as? Int ?? 0)
         reviewRequested = read.bool(Keys.reviewRequested, default: false)
         telegramPromoShown = read.bool(Keys.telegramPromoShown, default: false)
-        supportPromoShown = read.bool(Keys.supportPromoShown, default: false)
 
         hijriOffset = read.int(Keys.hijriOffset, allowed: SettingOptions.hijriOffsets, default: 0)
 
@@ -198,7 +196,6 @@ final class AppSettings {
         static let announcementVersionShown = "popup_version_shown"
         static let reviewRequested = "promo_rate_done"
         static let telegramPromoShown = "promo_telegram_done"
-        static let supportPromoShown = "promo_support_done"
         static let reminderEnabled = "reminder_enabled"
         static let reminderTitle = "reminder_title"
         static let reminderHour = "reminder_hour"

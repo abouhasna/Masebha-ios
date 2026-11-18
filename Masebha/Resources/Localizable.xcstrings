@@ -1735,57 +1735,6 @@
         }
       }
     },
-    "promo.support.button" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ادعم"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Support"
-          }
-        }
-      }
-    },
-    "promo.support.message" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "كن من الداعمين لتحصل على ميزات خاصة وتساهم في استمرار تطوير التطبيق بدون إعلانات."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Become a supporter to unlock exclusive features and help keep the app growing without ads."
-          }
-        }
-      }
-    },
-    "promo.support.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ادعم المسبحة"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keep the app ad-free"
-          }
-        }
-      }
-    },
     "promo.telegram.button" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3747,13 +3696,13 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "اضغط في أي مكان من الشاشة لتسبّح، وأضف أذكارك بزر +، وخصّص الألوان والخطوط من الإعدادات. التطبيق مجاني وبلا إعلانات، نسأل الله أن ينفعك به."
+            "value" : "اضغط في أي مكان من الشاشة لتسبّح. وفي الإعدادات خيارات كثيرة لتجعل التطبيق كما تحب: الألوان والخطوط وحجم الخط والاهتزاز والتذكير اليومي وغيرها. التطبيق مجاني وبلا إعلانات، نسأل الله أن ينفعك به."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tap anywhere on the screen to count, add your own azkar with +, and make the colors and fonts yours in Settings. The app is free and ad-free. May Allah make it beneficial for you."
+            "value" : "Tap anywhere on the screen to count. Settings has many ways to make the app yours: colors, fonts, text size, vibration, a daily reminder and more. The app is free and ad-free. May Allah make it beneficial for you."
           }
         }
       }

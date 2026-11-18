@@ -89,10 +89,9 @@ struct AnnouncementTests {
 struct LaunchPopupsTests {
     private let announcement = Announcement(version: 2, title: "T", message: "M", buttonText: nil, buttonLink: nil, image: nil)
 
-    private func state(launch: Int = 1, welcome: Bool = true, version: Int = 0, telegram: Bool = false,
-                       support: Bool = false, supporter: Bool = false) -> LaunchState {
+    private func state(launch: Int = 1, welcome: Bool = true, version: Int = 0, telegram: Bool = false) -> LaunchState {
         LaunchState(launchCount: launch, welcomeShown: welcome, announcementVersionShown: version,
-                    telegramPromoShown: telegram, supportPromoShown: support, isSupporter: supporter)
+                    telegramPromoShown: telegram)
     }
 
     @Test func aNewUserSeesTheWelcomeFirst() {
@@ -106,13 +105,10 @@ struct LaunchPopupsTests {
         #expect(LaunchPopups.choose(state(version: 5), announcement: announcement) == nil)
     }
 
-    @Test func promosComeAtTheirLaunch() {
+    @Test func theTelegramInvitationComesOnceFromTheThirteenthLaunch() {
         #expect(LaunchPopups.choose(state(launch: 12), announcement: nil) == nil)
         #expect(LaunchPopups.choose(state(launch: 13), announcement: nil) == .telegram)
-        #expect(LaunchPopups.choose(state(launch: 19, telegram: true), announcement: nil) == nil)
-        #expect(LaunchPopups.choose(state(launch: 20, telegram: true), announcement: nil) == .support)
-        #expect(LaunchPopups.choose(state(launch: 20, telegram: true, supporter: true), announcement: nil) == nil)
-        #expect(LaunchPopups.choose(state(launch: 30, telegram: true, support: true), announcement: nil) == nil)
+        #expect(LaunchPopups.choose(state(launch: 40, telegram: true), announcement: nil) == nil)
     }
 
     @Test func anAnnouncementWinsOverAPromo() {

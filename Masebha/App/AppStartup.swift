@@ -16,10 +16,10 @@ enum AppStartup {
                 // Completes a first launch that was interrupted after the language choice.
                 try environment.seedIfNeeded()
             }
+            environment.settings.launchCount += 1   // one real launch (Android launch_count)
             #if DEBUG
             try UITestHooks.configure(environment)
             #endif
-            environment.settings.launchCount += 1   // one real launch (Android launch_count)
             environment.supportStore.start()   // listens for purchases from launch (Apple's rule)
             return .success(environment)
         } catch {
@@ -59,6 +59,11 @@ enum UITestHooks {
         if values["UITEST_SKIP_POPUPS"] == "1" {
             environment.launchPopupsEnabled = false
         }
+        if let count = values["UITEST_LAUNCH_COUNT"].flatMap({ Int($0) }) {
+            environment.settings.launchCount = count   // e.g. 13 shows the Telegram invitation
+            environment.settings.welcomeShown = true
+            environment.announcementOverride = Data()   // never the real announcement in tests
+        }
         if values["UITEST_ANNOUNCEMENT"] == "1" {
             environment.settings.welcomeShown = true
             environment.announcementOverride = Data(sampleAnnouncement.utf8)
@@ -96,11 +101,11 @@ enum UITestHooks {
     /// A Firestore document like the real one, to see the announcement popup in UI tests.
     private static let sampleAnnouncement = """
         {"fields": {"enabled": {"booleanValue": true}, "version": {"integerValue": "1"},
-         "title": {"stringValue": "ميزة جديدة: الأوراد"}, "title_en": {"stringValue": "New: Wirds"},
-         "description": {"stringValue": "أنشئ أورادك اليومية وتابع تقدّمك فيها كل يوم."},
-         "description_en": {"stringValue": "Build your daily routines and follow your progress every day."},
-         "buttonText": {"stringValue": "تابعنا على تيليجرام"}, "buttonText_en": {"stringValue": "Follow us on Telegram"},
-         "buttonLink": {"stringValue": "https://t.me/nafiapp"}}}
+         "title": {"stringValue": "مثال لإعلان"}, "title_en": {"stringValue": "Sample announcement"},
+         "description": {"stringValue": "هنا يظهر نص الإعلان الذي تكتبه في Firebase، مع زر اختياري يفتح رابطًا."},
+         "description_en": {"stringValue": "The announcement text you write in Firebase shows here, with an optional button that opens a link."},
+         "buttonText": {"stringValue": "زر اختياري"}, "buttonText_en": {"stringValue": "Optional button"},
+         "buttonLink": {"stringValue": "https://tasbeeh-app.pages.dev/"}}}
         """
 
     static let mediumLongDhikr = "لا إله إلا الله وحده لا شريك له، له الملك وله الحمد، يحيي ويميت، وهو حي لا يموت، بيده الخير، وهو على كل شيء قدير"

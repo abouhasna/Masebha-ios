@@ -1,12 +1,12 @@
 import Foundation
 
 /// At most one popup per launch (Android order): the welcome for a new user, otherwise a newer
-/// announcement, otherwise a promo. Each one is shown once, whatever the user answers.
+/// announcement, otherwise the Telegram invitation. Each one is shown once, whatever the answer.
+/// (No support popup: the Wird tab already explains support. Owner's decision.)
 nonisolated enum LaunchPopup: Equatable, Sendable {
     case welcome
     case announcement(Announcement)
     case telegram
-    case support
 }
 
 nonisolated struct LaunchState: Equatable, Sendable {
@@ -14,15 +14,12 @@ nonisolated struct LaunchState: Equatable, Sendable {
     var welcomeShown: Bool
     var announcementVersionShown: Int
     var telegramPromoShown: Bool
-    var supportPromoShown: Bool
-    var isSupporter: Bool
 }
 
 nonisolated enum LaunchPopups {
     /// Apple's rating prompt is asked after counting (never at launch, Apple's advice), from this launch.
     static let reviewFromLaunch = 7
     static let telegramFromLaunch = 13
-    static let supportFromLaunch = 20
 
     /// Whether the announcement is worth fetching this launch (the welcome comes first).
     static func needsAnnouncement(_ state: LaunchState) -> Bool {
@@ -33,7 +30,6 @@ nonisolated enum LaunchPopups {
         if !state.welcomeShown { return .welcome }
         if let announcement, announcement.version > state.announcementVersionShown { return .announcement(announcement) }
         if state.launchCount >= telegramFromLaunch && !state.telegramPromoShown { return .telegram }
-        if state.launchCount >= supportFromLaunch && !state.supportPromoShown && !state.isSupporter { return .support }
         return nil
     }
 

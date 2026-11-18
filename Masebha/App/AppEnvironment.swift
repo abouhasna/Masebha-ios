@@ -140,8 +140,7 @@ final class AppEnvironment {
         launchPopupDecided = true
         let state = LaunchState(launchCount: settings.launchCount, welcomeShown: settings.welcomeShown,
                                 announcementVersionShown: settings.announcementVersionShown,
-                                telegramPromoShown: settings.telegramPromoShown,
-                                supportPromoShown: settings.supportPromoShown, isSupporter: entitlements.isSupporter)
+                                telegramPromoShown: settings.telegramPromoShown)
         var announcement: Announcement?
         if LaunchPopups.needsAnnouncement(state) {
             let english = settings.language == .english
@@ -156,7 +155,6 @@ final class AppEnvironment {
         case .welcome: settings.welcomeShown = true
         case .announcement(let item): settings.announcementVersionShown = item.version
         case .telegram: settings.telegramPromoShown = true
-        case .support: settings.supportPromoShown = true
         }
         return popup
     }

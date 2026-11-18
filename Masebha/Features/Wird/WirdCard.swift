@@ -74,6 +74,7 @@ struct WirdCard: View {
         case .started: ("circle.lefthalf.filled", tr("wird.status.started"))
         case .done: ("checkmark.circle.fill", tr("wird.status.done"))
         }
+        let done = wird.state == .done
         return HStack(spacing: 4) {
             Image(systemName: icon)
                 .font(.system(size: 12, weight: .semibold))
@@ -81,10 +82,13 @@ struct WirdCard: View {
             Text(label)
                 .appFont(12, .medium)
         }
+        // "Done" is white on green, clear at a glance on every theme (a light outline keeps it
+        // visible on green cards too); the other states use the card's text color.
+        .foregroundStyle(done ? Color.white : text)
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(Capsule().fill(text.opacity(wird.state == .notStarted ? 0 : (wird.state == .done ? 0.25 : 0.14))))
-        .overlay(Capsule().stroke(text.opacity(0.45), lineWidth: 1))
+        .background(Capsule().fill(done ? Color(argb: 0xFF1E_8E3E) : text.opacity(wird.state == .started ? 0.14 : 0)))
+        .overlay(Capsule().stroke(done ? Color.white.opacity(0.55) : text.opacity(0.45), lineWidth: 1))
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("wird.card.status")
     }

@@ -17,6 +17,8 @@ struct LaunchOptions {
     var popups = false
     /// A sample announcement instead of the real Firestore document (implies popups).
     var announcement = false
+    /// Pretends this is the n-th launch (implies popups), e.g. 13 for the Telegram invitation.
+    var launchCount: Int?
 }
 
 extension XCTestCase {
@@ -31,7 +33,10 @@ extension XCTestCase {
         if options.skipCoachMark { app.launchEnvironment["UITEST_SKIP_COACH"] = "1" }
         if options.demoData { app.launchEnvironment["UITEST_DEMO_DATA"] = "1" }
         if options.announcement { app.launchEnvironment["UITEST_ANNOUNCEMENT"] = "1" }
-        if !options.popups && !options.announcement { app.launchEnvironment["UITEST_SKIP_POPUPS"] = "1" }
+        if let count = options.launchCount { app.launchEnvironment["UITEST_LAUNCH_COUNT"] = String(count) }
+        if !options.popups && !options.announcement && options.launchCount == nil {
+            app.launchEnvironment["UITEST_SKIP_POPUPS"] = "1"
+        }
         app.launch()
         return app
     }

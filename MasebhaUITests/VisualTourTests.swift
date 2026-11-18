@@ -335,16 +335,20 @@ final class VisualTourTests: XCTestCase {
     func testA9ArabicPopupsRatingAndSharing() throws {
         // A new user: the static welcome, once.
         let app = launchApp(LaunchOptions(language: "ar", popups: true))
-        let welcome = app.alerts.firstMatch
-        XCTAssertTrue(welcome.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.element("popup").waitForExistence(timeout: 10))
         screenshot(app, "A64-welcome")
-        welcome.buttons.firstMatch.tap()
+        app.element("popup.button").tap()
+
+        // The 13th launch: the Telegram invitation.
+        let invited = launchApp(LaunchOptions(language: "ar", launchCount: 13))
+        XCTAssertTrue(invited.element("popup").waitForExistence(timeout: 10))
+        screenshot(invited, "A68-telegram-invitation")
 
         // An announcement (a sample document shaped like the real Firestore one).
         let announced = launchApp(LaunchOptions(language: "ar", announcement: true))
-        XCTAssertTrue(announced.element("announcement").waitForExistence(timeout: 10))
+        XCTAssertTrue(announced.element("popup").waitForExistence(timeout: 10))
         screenshot(announced, "A65-announcement")
-        announced.element("announcement.close").tap()
+        announced.element("popup.close").tap()
 
         announced.tab("المزيد")
         announced.swipeUpUntil(announced.element("more.share"))
