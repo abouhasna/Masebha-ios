@@ -137,6 +137,31 @@ Acceptance:
 
 **Long dhikr (owner's rule, follow-up 1).** With the small 16 pt size in step 3, even the 4.7" iPhone SE with the biggest font and the "today" row keeps the 240 pt ring. Only a small iPhone with Display Zoom can shrink it.
 
+## Decisions made in Leap 3 (first part)
+
+- **One popup per launch at most** (Android order, `LaunchPopups`, unit-tested): the welcome for a new user, otherwise a newer announcement, otherwise a promo. Each one is marked as shown when it appears, whatever the answer.
+- **Welcome:** static, built into the app (Arabic and English), shown once to new users.
+- **Announcement:** read with one HTTPS request (Firestore REST, no Firebase SDK) from project `masebhaproject`, collection `masebha`, document **`ios_popup`** (iOS only, same fields as Android's popup). Every field is checked: a broken image or a non-web link is left out, a broken document shows nothing. Each version is shown once.
+- **Promos:** Telegram from launch 13, Support from launch 20 (non-supporters only), each once.
+- **Rating:** Apple's own prompt, once, when the user comes back from counting, from launch 7 (Apple advises against asking at launch; Apple shows it at most 3 times a year). More → "Rate the app" opens the App Store review page once the app's id is known (Apple's prompt until then).
+- **Sharing:** More → "Share the app" sends Android's share text with the App Store link (the website until the app's id is known: `AppLinks.appStoreID`).
+- **Wird session (owner's review):** "1 / 23" next to the progress bar, above the zikr (no title, like Android); "Wird completed" on a green card.
+- **Font step-down (owner's request):** before the 16 pt fallback, the font gets one point smaller at a time, so a slightly long zikr keeps a large size. Measurements are cached.
+
+**Firebase setup (owner).** In the Firebase console of project `masebhaproject` → Firestore → collection `masebha` → add a document with ID `ios_popup`:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `enabled` | boolean | `true` to show it |
+| `version` | number | raise it by 1 for every new announcement; each user sees each version once |
+| `title`, `title_en` | string | title (Arabic, English) |
+| `description`, `description_en` | string | text |
+| `buttonText`, `buttonText_en` | string | optional button |
+| `buttonLink` | string | optional `https://` link opened by the button |
+| `image` | string | optional base64 PNG/JPEG, under about 700 KB |
+
+The `_en` fields are optional (English falls back to the Arabic text). Security rules must let anyone *read* this document (as Android's popup document already is); nothing can be written by the app.
+
 ## Implementation choices made in Leap 1
 
 These are small differences from Android, decided during the build. Each one is reversible.
@@ -165,4 +190,5 @@ These are small differences from Android, decided during the build. Each one is 
 - Real Android backup files, to confirm the import with real data (a hand-made Android-format file is tested meanwhile).
 - The two products in App Store Connect with the IDs above, and their prices (needs the $99 account).
 - A sharper 1024 px app icon before release. The current icon is the 512 px Android asset, upscaled.
-- The iOS Firestore document for the announcement popup (Leap 3).
+- The iOS Firestore document `ios_popup` (see "Firebase setup" above).
+- The app's Apple ID number once the app exists in App Store Connect (`AppLinks.appStoreID`, for sharing and the review page).

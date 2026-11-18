@@ -1,7 +1,8 @@
 import SwiftUI
+import StoreKit
 
-/// The More tab (≈ the Android side drawer): total, reset all, settings and links.
-/// Support, feedback, rating and sharing arrive in the next leaps.
+/// The More tab (≈ the Android side drawer): support, total, reset all, settings, ideas and
+/// contact, rating, sharing and links.
 struct MoreTab: View {
     var body: some View {
         NavigationStack {
@@ -13,6 +14,8 @@ struct MoreTab: View {
 
 struct MoreView: View {
     @Environment(AppEnvironment.self) private var environment
+    @Environment(\.openURL) private var openURL
+    @Environment(\.requestReview) private var requestReview
     @State private var total = 0
     @State private var confirmResetAll = false
     @State private var failed = false
@@ -67,6 +70,19 @@ struct MoreView: View {
                 link(tr("more.suggest"), subtitle: tr("more.suggest.summary"), icon: "lightbulb.fill",
                      url: AppLinks.suggestions, id: "more.suggest")
                 link(tr("more.contact"), icon: "envelope.fill", url: AppLinks.contact, id: "more.contact")
+                Button {
+                    // The App Store's review page once the app's id is known; Apple's prompt until then.
+                    if let page = AppLinks.writeReview { openURL(page) } else { requestReview() }
+                } label: {
+                    SettingsRowLabel(icon: "star.fill", title: tr("more.rate"))
+                }
+                .settingsRowBackground()
+                .accessibilityIdentifier("more.rate")
+                ShareLink(item: tr("share.text", AppLinks.store.absoluteString)) {
+                    SettingsRowLabel(icon: "square.and.arrow.up", title: tr("more.share"))
+                }
+                .settingsRowBackground()
+                .accessibilityIdentifier("more.share")
             } header: {
                 Text(tr("more.feedback"))
             }

@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 
 /// The bottom tabs: Azkar | Wird | More (replaces the Android bottom navigation and side drawer).
 ///
@@ -27,11 +28,14 @@ struct MainTabView: View {
                 .tag(Tab.more)
         }
         .tint(Color("TabSelected"))
+        .modifier(LaunchPopupsPresenter())
     }
 }
 
 /// Navigation of the Azkar tab: the list, and the counter screen pushed on top of it.
 struct AzkarTab: View {
+    @Environment(AppEnvironment.self) private var environment
+    @Environment(\.requestReview) private var requestReview
     @State private var path: [CounterRoute] = []
 
     var body: some View {
@@ -45,6 +49,13 @@ struct AzkarTab: View {
             }
         }
         .modifier(TabContentTint())
+        .onChange(of: path) { old, new in
+            // Back from counting, once, from the 7th launch: Apple's own rating prompt (Apple
+            // decides whether it really shows; it never shows more than 3 times a year).
+            if !old.isEmpty && new.isEmpty && environment.takeReviewTurn() {
+                requestReview()
+            }
+        }
     }
 }
 

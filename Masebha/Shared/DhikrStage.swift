@@ -30,18 +30,17 @@ struct DhikrStage<Stats: View, Ring: View>: View {
     var body: some View {
         GeometryReader { geometry in
             let textWidth = geometry.size.width - 32
-            let normal = uiFont(fontSize)
-            let small = uiFont(min(fontSize, CounterLayout.smallTextSize))
             let layout = CounterLayout.layout(
                 availableHeight: geometry.size.height, width: geometry.size.width, statsHeight: statsHeight,
-                normalTextHeight: TextMeasure.height(text, font: normal, width: textWidth) + 4,
-                smallTextHeight: TextMeasure.height(text, font: small, width: textWidth) + 4,
-                smallLineHeight: small.lineHeight)
+                sizes: CounterLayout.candidateSizes(from: fontSize)) { size in
+                    let font = uiFont(size)
+                    return .init(fontSize: size, height: TextMeasure.height(text, font: font, width: textWidth) + 4,
+                                 lineHeight: font.lineHeight)
+                }
             VStack(spacing: 0) {
                 ScrollView(.vertical) {
                     Text(text)
-                        .font(.custom(family.postScriptName(.light),
-                                      fixedSize: layout.usesSmallText ? small.pointSize : normal.pointSize))
+                        .font(.custom(family.postScriptName(.light), fixedSize: layout.fontSize))
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: .infinity)
                         .foregroundStyle(Color(argb: textColor))
@@ -119,12 +118,28 @@ struct ProgressRing: View {
     }
 }
 
+/// Text heights for the layout. Results are remembered, because the screen is redrawn on every tap
+/// while the text, font and width stay the same.
 enum TextMeasure {
+    private struct Key: Hashable {
+        let text: String
+        let font: String
+        let size: CGFloat
+        let width: CGFloat
+    }
+
+    private static var cache: [Key: CGFloat] = [:]
+
     static func height(_ text: String, font: UIFont, width: CGFloat) -> CGFloat {
+        let key = Key(text: text, font: font.fontName, size: font.pointSize, width: width)
+        if let known = cache[key] { return known }
+        if cache.count > 400 { cache.removeAll() }
         let rect = (text as NSString).boundingRect(
             with: CGSize(width: max(1, width), height: .greatestFiniteMagnitude),
             options: [.usesLineFragmentOrigin, .usesFontLeading],
             attributes: [.font: font], context: nil)
-        return ceil(rect.height)
+        let height = ceil(rect.height)
+        cache[key] = height
+        return height
     }
 }

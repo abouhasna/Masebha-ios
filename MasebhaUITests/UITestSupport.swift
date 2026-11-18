@@ -13,6 +13,10 @@ struct LaunchOptions {
     var supporter = false
     var skipCoachMark = true
     var demoData = false
+    /// Welcome / announcement / promos and the rating prompt (off unless a test looks at them).
+    var popups = false
+    /// A sample announcement instead of the real Firestore document (implies popups).
+    var announcement = false
 }
 
 extension XCTestCase {
@@ -26,6 +30,8 @@ extension XCTestCase {
         if options.supporter { app.launchEnvironment["UITEST_SUPPORTER"] = "1" }
         if options.skipCoachMark { app.launchEnvironment["UITEST_SKIP_COACH"] = "1" }
         if options.demoData { app.launchEnvironment["UITEST_DEMO_DATA"] = "1" }
+        if options.announcement { app.launchEnvironment["UITEST_ANNOUNCEMENT"] = "1" }
+        if !options.popups && !options.announcement { app.launchEnvironment["UITEST_SKIP_POPUPS"] = "1" }
         app.launch()
         return app
     }
@@ -35,7 +41,7 @@ extension XCTestCase {
     @discardableResult
     func relaunch(_ app: XCUIApplication) -> XCUIApplication {
         app.terminate()
-        app.launchEnvironment = ["UITEST_DISABLE_ANIMATIONS": "1"]
+        app.launchEnvironment = ["UITEST_DISABLE_ANIMATIONS": "1", "UITEST_SKIP_POPUPS": "1"]
         app.launch()
         return app
     }

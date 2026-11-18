@@ -19,6 +19,7 @@ enum AppStartup {
             #if DEBUG
             try UITestHooks.configure(environment)
             #endif
+            environment.settings.launchCount += 1   // one real launch (Android launch_count)
             environment.supportStore.start()   // listens for purchases from launch (Apple's rule)
             return .success(environment)
         } catch {
@@ -55,6 +56,13 @@ enum UITestHooks {
         if values["UITEST_SUPPORTER"] == "1" {
             environment.entitlements.debugSupporter = true
         }
+        if values["UITEST_SKIP_POPUPS"] == "1" {
+            environment.launchPopupsEnabled = false
+        }
+        if values["UITEST_ANNOUNCEMENT"] == "1" {
+            environment.settings.welcomeShown = true
+            environment.announcementOverride = Data(sampleAnnouncement.utf8)
+        }
         if values["UITEST_SKIP_COACH"] == "1" {
             environment.settings.coachMarkSeen = true
         }
@@ -84,6 +92,16 @@ enum UITestHooks {
         _ = try store.add(name: ayatAlKursi, loopSize: 1, initialTotal: 7)
         _ = try store.add(name: mediumLongDhikr, loopSize: 100, initialTotal: 0)
     }
+
+    /// A Firestore document like the real one, to see the announcement popup in UI tests.
+    private static let sampleAnnouncement = """
+        {"fields": {"enabled": {"booleanValue": true}, "version": {"integerValue": "1"},
+         "title": {"stringValue": "ميزة جديدة: الأوراد"}, "title_en": {"stringValue": "New: Wirds"},
+         "description": {"stringValue": "أنشئ أورادك اليومية وتابع تقدّمك فيها كل يوم."},
+         "description_en": {"stringValue": "Build your daily routines and follow your progress every day."},
+         "buttonText": {"stringValue": "تابعنا على تيليجرام"}, "buttonText_en": {"stringValue": "Follow us on Telegram"},
+         "buttonLink": {"stringValue": "https://t.me/nafiapp"}}}
+        """
 
     static let mediumLongDhikr = "لا إله إلا الله وحده لا شريك له، له الملك وله الحمد، يحيي ويميت، وهو حي لا يموت، بيده الخير، وهو على كل شيء قدير"
 

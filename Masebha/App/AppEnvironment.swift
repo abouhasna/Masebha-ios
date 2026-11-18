@@ -16,6 +16,11 @@ final class AppEnvironment {
     let reminders: ReminderScheduler
     /// The reminder as iOS really has it (refreshed at launch and after every change).
     var reminderStatus: ReminderStatus = .off
+    /// UI tests turn the launch popups and the rating prompt off.
+    @ObservationIgnored var launchPopupsEnabled = true
+    /// Debug builds only: a sample announcement document instead of the real one (UI tests).
+    @ObservationIgnored var announcementOverride: Data?
+    @ObservationIgnored private var launchPopupDecided = false
 
     init(settings: AppSettings, entitlements: Entitlements, database: AppDatabase,
          sound: SoundPlayer = SoundPlayer(), haptics: Haptics = Haptics(),
@@ -125,6 +130,45 @@ final class AppEnvironment {
             applyLanguage(language)
         }
         Task { await refreshReminder() }
+    }
+
+    // MARK: Launch popups, promos and rating
+
+    /// The one popup of this launch (at most), already marked as shown. Call it once per launch.
+    func nextLaunchPopup() async -> LaunchPopup? {
+        guard launchPopupsEnabled, !launchPopupDecided else { return nil }
+        launchPopupDecided = true
+        let state = LaunchState(launchCount: settings.launchCount, welcomeShown: settings.welcomeShown,
+                                announcementVersionShown: settings.announcementVersionShown,
+                                telegramPromoShown: settings.telegramPromoShown,
+                                supportPromoShown: settings.supportPromoShown, isSupporter: entitlements.isSupporter)
+        var announcement: Announcement?
+        if LaunchPopups.needsAnnouncement(state) {
+            let english = settings.language == .english
+            if let announcementOverride {
+                announcement = Announcement.parse(announcementOverride, english: english)
+            } else {
+                announcement = await RemoteContent.fetchAnnouncement(english: english)
+            }
+        }
+        guard let popup = LaunchPopups.choose(state, announcement: announcement) else { return nil }
+        switch popup {   // shown once, whatever the user answers (Android)
+        case .welcome: settings.welcomeShown = true
+        case .announcement(let item): settings.announcementVersionShown = item.version
+        case .telegram: settings.telegramPromoShown = true
+        case .support: settings.supportPromoShown = true
+        }
+        return popup
+    }
+
+    /// True once, from the 7th launch: time to show Apple's rating prompt (after counting).
+    func takeReviewTurn() -> Bool {
+        guard launchPopupsEnabled,
+              LaunchPopups.shouldAskForReview(launchCount: settings.launchCount, alreadyAsked: settings.reviewRequested) else {
+            return false
+        }
+        settings.reviewRequested = true
+        return true
     }
 
     // MARK: Reminder

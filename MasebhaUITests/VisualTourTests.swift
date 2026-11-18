@@ -331,6 +331,29 @@ final class VisualTourTests: XCTestCase {
         screenshot(app, "A63-backup-share-sheet")
     }
 
+    @MainActor
+    func testA9ArabicPopupsRatingAndSharing() throws {
+        // A new user: the static welcome, once.
+        let app = launchApp(LaunchOptions(language: "ar", popups: true))
+        let welcome = app.alerts.firstMatch
+        XCTAssertTrue(welcome.waitForExistence(timeout: 10))
+        screenshot(app, "A64-welcome")
+        welcome.buttons.firstMatch.tap()
+
+        // An announcement (a sample document shaped like the real Firestore one).
+        let announced = launchApp(LaunchOptions(language: "ar", announcement: true))
+        XCTAssertTrue(announced.element("announcement").waitForExistence(timeout: 10))
+        screenshot(announced, "A65-announcement")
+        announced.element("announcement.close").tap()
+
+        announced.tab("المزيد")
+        announced.swipeUpUntil(announced.element("more.share"))
+        screenshot(announced, "A66-more-rate-share")
+        announced.element("more.share").tap()
+        sleep(2)
+        screenshot(announced, "A67-share-sheet")
+    }
+
     // MARK: English
 
     @MainActor

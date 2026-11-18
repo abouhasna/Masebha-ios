@@ -56,6 +56,19 @@ final class AppSettings {
     /// are never added twice.
     var wirdDefaultsAdded: Bool { didSet { defaults.set(wirdDefaultsAdded, forKey: Keys.wirdDefaultsAdded) } }
 
+    // MARK: Launch popups and promos (never in backups, like Android)
+
+    /// Real launches of the app (Android launch_count).
+    var launchCount: Int { didSet { defaults.set(launchCount, forKey: Keys.launchCount) } }
+    var welcomeShown: Bool { didSet { defaults.set(welcomeShown, forKey: Keys.welcomeShown) } }
+    /// The newest announcement version already shown.
+    var announcementVersionShown: Int {
+        didSet { defaults.set(announcementVersionShown, forKey: Keys.announcementVersionShown) }
+    }
+    var reviewRequested: Bool { didSet { defaults.set(reviewRequested, forKey: Keys.reviewRequested) } }
+    var telegramPromoShown: Bool { didSet { defaults.set(telegramPromoShown, forKey: Keys.telegramPromoShown) } }
+    var supportPromoShown: Bool { didSet { defaults.set(supportPromoShown, forKey: Keys.supportPromoShown) } }
+
     // MARK: Hijri date
 
     var hijriOffset: Int { didSet { defaults.set(hijriOffset, forKey: Keys.hijriOffset) } }
@@ -98,6 +111,13 @@ final class AppSettings {
         coachMarkSeen = read.bool(Keys.coachMarkSeen, default: false)
 
         wirdDefaultsAdded = read.bool(Keys.wirdDefaultsAdded, default: false)
+
+        launchCount = max(0, defaults.object(forKey: Keys.launchCount) as? Int ?? 0)
+        welcomeShown = read.bool(Keys.welcomeShown, default: false)
+        announcementVersionShown = max(0, defaults.object(forKey: Keys.announcementVersionShown) as? Int ?? 0)
+        reviewRequested = read.bool(Keys.reviewRequested, default: false)
+        telegramPromoShown = read.bool(Keys.telegramPromoShown, default: false)
+        supportPromoShown = read.bool(Keys.supportPromoShown, default: false)
 
         hijriOffset = read.int(Keys.hijriOffset, allowed: SettingOptions.hijriOffsets, default: 0)
 
@@ -173,6 +193,12 @@ final class AppSettings {
         static let coachMarkSeen = "coach_mark_tapped"
         static let hijriOffset = "hijri_offset"
         static let wirdDefaultsAdded = "wird_defaults_added"
+        static let launchCount = "launch_count"
+        static let welcomeShown = "welcome_shown"
+        static let announcementVersionShown = "popup_version_shown"
+        static let reviewRequested = "promo_rate_done"
+        static let telegramPromoShown = "promo_telegram_done"
+        static let supportPromoShown = "promo_support_done"
         static let reminderEnabled = "reminder_enabled"
         static let reminderTitle = "reminder_title"
         static let reminderHour = "reminder_hour"

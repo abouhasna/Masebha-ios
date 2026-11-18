@@ -545,6 +545,23 @@
         }
       }
     },
+    "common.later" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لاحقًا"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Later"
+          }
+        }
+      }
+    },
     "common.ok" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1480,6 +1497,23 @@
         }
       }
     },
+    "more.rate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "قيّم التطبيق"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rate the app"
+          }
+        }
+      }
+    },
     "more.reset_all" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1544,6 +1578,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Settings"
+          }
+        }
+      }
+    },
+    "more.share" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "شارك التطبيق"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share the app"
           }
         }
       }
@@ -1680,6 +1731,108 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "YouTube"
+          }
+        }
+      }
+    },
+    "promo.support.button" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ادعم"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support"
+          }
+        }
+      }
+    },
+    "promo.support.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "كن من الداعمين لتحصل على ميزات خاصة وتساهم في استمرار تطوير التطبيق بدون إعلانات."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Become a supporter to unlock exclusive features and help keep the app growing without ads."
+          }
+        }
+      }
+    },
+    "promo.support.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ادعم المسبحة"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep the app ad-free"
+          }
+        }
+      }
+    },
+    "promo.telegram.button" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الانضمام"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Join"
+          }
+        }
+      }
+    },
+    "promo.telegram.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تابع آخر التحديثات والأخبار والمحتوى المفيد على قناتنا على تيليجرام."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Follow the latest updates, news, and useful content on our Telegram channel."
+          }
+        }
+      }
+    },
+    "promo.telegram.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "انضم لقناتنا على تيليجرام"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Join our Telegram channel"
           }
         }
       }
@@ -2496,6 +2649,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Strong vibration when a loop completes"
+          }
+        }
+      }
+    },
+    "share.text" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تطبيق *المسبحة الإلكترونية* 📿\n\nيمنحك هذا التطبيق تجربة سلسة ومرنة لاستخدام المسبحة الإلكترونية، مع إمكانية تخصيص الأذكار وتنظيمها حسب احتياجاتك.\n\n✨ المميزات الأساسية:\n- إضافة وتعديل الأذكار وترتيبها.\n- حساب عدد الدورات والمجموع الكلي لكل ذكر.\n- تنبيه صوتي أو اهتزازي عند اكتمال الدورة.\n- وضع توفير الطاقة مع شاشة سوداء.\n- تخصيص ألوان التطبيق لراحة أكبر.\n- التحكم بإعدادات أخرى.\n\nجرّب التطبيق الآن وشارك الأجر مع الآخرين:\n🔗 %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "*Tasbeeh* App 📿\n\nEnjoy a smooth and flexible digital prayer-beads experience, with the ability to customize and organize your adhkar the way you need.\n\n✨ Key Features:\n- Add, edit, and arrange adhkar.\n- Track loops and total count for each dhikr.\n- Auto-Count without constant tapping.\n- Power-saving mode with a black screen.\n- Customize app colors for more comfort.\n- More settings to control your experience.\n\nTry the app now and share the reward with others:\n🔗 %@"
           }
         }
       }
@@ -3567,6 +3737,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Very short"
+          }
+        }
+      }
+    },
+    "welcome.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اضغط في أي مكان من الشاشة لتسبّح، وأضف أذكارك بزر +، وخصّص الألوان والخطوط من الإعدادات. التطبيق مجاني وبلا إعلانات، نسأل الله أن ينفعك به."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap anywhere on the screen to count, add your own azkar with +, and make the colors and fonts yours in Settings. The app is free and ad-free. May Allah make it beneficial for you."
+          }
+        }
+      }
+    },
+    "welcome.start" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ابدأ"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start"
+          }
+        }
+      }
+    },
+    "welcome.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أهلًا بك في المسبحة الإلكترونية"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Tasbeeh"
           }
         }
       }

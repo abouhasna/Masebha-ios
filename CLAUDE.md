@@ -69,7 +69,7 @@ Pure logic                    counter math, wird day rules, backup codec; no UI,
   - Semantic keys (`feature.thing`), each with both `ar` and `en` values. Read them with `tr("key")`, which follows the in-app language.
   - Never hard-code UI text.
   - `scripts/ci/check_strings.py` (also run on CI) fails on a missing key or translation.
-- **UI tests.** They drive the real app through debug-only environment hooks (`UITestHooks` in `AppStartup.swift`): `UITEST_RESET`, `UITEST_LANGUAGE`, `UITEST_SUPPORTER`, `UITEST_SKIP_COACH`, `UITEST_DISABLE_ANIMATIONS`, `UITEST_DEMO_DATA`.
+- **UI tests.** They drive the real app through debug-only environment hooks (`UITestHooks` in `AppStartup.swift`): `UITEST_RESET`, `UITEST_LANGUAGE`, `UITEST_SUPPORTER`, `UITEST_SKIP_COACH`, `UITEST_DISABLE_ANIMATIONS`, `UITEST_DEMO_DATA`, `UITEST_SKIP_POPUPS` (set by default in the test helpers), `UITEST_ANNOUNCEMENT` (a sample announcement).
 - **Purchases are tested without an Apple account**: `StoreKit/Supporter.storekit` is the local test store, used by `SKTestSession` in the unit and UI tests and by the Simulator.
   - Give tested elements an `accessibilityIdentifier`.
   - Save screenshots as `XCTAttachment`s and look at them after each run.

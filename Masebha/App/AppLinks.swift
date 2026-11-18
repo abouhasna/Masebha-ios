@@ -13,6 +13,17 @@ enum AppLinks {
     /// Apple's standard Terms of Use (EULA), required next to a subscription.
     static let terms = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!
 
+    /// The app's Apple ID number (App Store Connect → App Information → Apple ID). Until it is set,
+    /// sharing uses the website and "Rate" shows Apple's rating prompt.
+    static let appStoreID: String? = nil
+    /// What "Share the app" sends: the App Store page, or the website until the id is known.
+    static var store: URL {
+        appStoreID.flatMap { URL(string: "https://apps.apple.com/app/id\($0)") } ?? website("")
+    }
+    static var writeReview: URL? {
+        appStoreID.flatMap { URL(string: "https://apps.apple.com/app/id\($0)?action=write-review") }
+    }
+
     static let youtube = URL(string: "https://youtube.com/shorts/V6j_zEb3h5w?si=lzXx3qbB7xV1i3bw")!
     static let telegram = URL(string: "https://t.me/nafiapp")!
 

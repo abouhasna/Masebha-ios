@@ -18,7 +18,7 @@ struct WirdSessionView: View {
     @State private var powerMode = false
 
     private static let headerTopPadding: CGFloat = 14
-    private static let headerSpacing: CGFloat = 8
+    private static let doneGreen: ARGB = 0xFF1E_8E3E
     private static let barHeight: CGFloat = 6
     private static let labelSize: CGFloat = 15
 
@@ -89,7 +89,7 @@ struct WirdSessionView: View {
                 PowerModeOverlay { powerMode = false }
             }
             if model.phase == .finished {
-                completedMessage(palette)
+                completedMessage()
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -137,12 +137,11 @@ struct WirdSessionView: View {
 
     // MARK: Parts
 
-    /// Above the zikr: the progress of the whole wird (it fills from the start side, the right
-    /// in Arabic), the wird's name, and the position of the zikr on screen. Taps here count too.
+    /// Above the zikr (like Android): the progress of the whole wird, filling from the start side
+    /// (the right in Arabic), with the position of the zikr on screen next to it. Taps here count too.
     private func header(_ model: WirdSessionModel, palette: ThemePalette) -> some View {
         let color = Color(argb: palette.counterText)
-        let font = Font.custom(family.postScriptName(.medium), fixedSize: Self.labelSize)
-        return VStack(spacing: Self.headerSpacing) {
+        return HStack(spacing: 12) {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     Capsule().fill(color.opacity(0.18))
@@ -151,30 +150,28 @@ struct WirdSessionView: View {
                 }
             }
             .frame(height: Self.barHeight)
-            .padding(.horizontal, 24)
             .accessibilityElement()
             .accessibilityLabel(tr("wird.a11y.progress"))
             .accessibilityValue("\(Int((model.progress * 100).rounded()))%")
             .accessibilityIdentifier("wird.session.progress")
-            Text(model.name)
-                .font(font)
-                .lineLimit(1)
-                .accessibilityIdentifier("wird.session.name")
-            HStack(spacing: 8) {
-                Text(verbatim: "\(model.index + 1) / \(model.items.count)")
-                    .accessibilityIdentifier("wird.session.position")
+            HStack(spacing: 6) {
                 if model.current?.status == .skipped {
                     Text(tr("wird.skipped"))
                         .opacity(0.75)
                 }
+                Text(verbatim: "\(model.index + 1) / \(model.items.count)")
+                    .accessibilityIdentifier("wird.session.position")
             }
-            .font(font)
+            .font(.custom(family.postScriptName(.medium), fixedSize: Self.labelSize))
+            .fixedSize()
         }
         .foregroundStyle(color)
+        .padding(.horizontal, 24)
         .padding(.top, Self.headerTopPadding)
     }
 
-    private func completedMessage(_ palette: ThemePalette) -> some View {
+    /// "Wird completed" on a green card, clear at a glance on every theme.
+    private func completedMessage() -> some View {
         VStack(spacing: 12) {
             Image(systemName: "checkmark.seal.fill")
                 .font(.system(size: 54))
@@ -182,9 +179,9 @@ struct WirdSessionView: View {
                 .appFont(20, .bold)
                 .multilineTextAlignment(.center)
         }
-        .foregroundStyle(Color(argb: palette.text))
+        .foregroundStyle(.white)
         .padding(28)
-        .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color(argb: palette.card)))
+        .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color(argb: Self.doneGreen)))
         .shadow(color: .black.opacity(0.3), radius: 12, y: 4)
         .padding(32)
         .accessibilityElement(children: .combine)
