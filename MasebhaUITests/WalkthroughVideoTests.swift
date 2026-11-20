@@ -1,11 +1,13 @@
 import XCTest
 
-/// The owner's walkthrough, filmed: CI records the Simulator screen while this test runs
+/// The owner's walkthrough, filmed: CI keeps Xcode's screen recording of this test
 /// (scripts/ci/record-walkthrough.sh) and uploads it as "walkthrough.mp4".
 ///
-/// It runs like a person would: in Arabic, with animations, the welcome popup and the first-time
-/// hint, and with pauses so each step can be followed. Every step is still checked, so a wrong
-/// number stops the video right there. The normal test run skips it (run-tests.sh).
+/// It runs like a person would: in Arabic, with the welcome popup and the first-time hint, and with
+/// pauses so each step can be followed. Animations are off, as in every UI test: with them on, the
+/// test waits for the screen to settle after each tap and the film lasted 12 minutes.
+/// Every step is still checked, so a wrong number stops the video right there.
+/// The normal test run skips it (run-tests.sh).
 final class WalkthroughVideoTests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
@@ -13,7 +15,7 @@ final class WalkthroughVideoTests: XCTestCase {
 
     @MainActor
     func testWalkthrough() throws {
-        let app = launchApp(LaunchOptions(language: nil, skipCoachMark: false, popups: true, animations: true))
+        let app = launchApp(LaunchOptions(language: nil, skipCoachMark: false, popups: true))
 
         // 1. First launch: choose Arabic; the welcome popup.
         let arabic = app.element("language.arabic")

@@ -19,8 +19,6 @@ struct LaunchOptions {
     var announcement = false
     /// Pretends this is the n-th launch (implies popups), e.g. 13 for the Telegram invitation.
     var launchCount: Int?
-    /// Animations on, as on a real phone (the walkthrough video). Off by default: faster, steadier tests.
-    var animations = false
 }
 
 extension XCTestCase {
@@ -28,7 +26,7 @@ extension XCTestCase {
     @discardableResult
     func launchApp(_ options: LaunchOptions = LaunchOptions()) -> XCUIApplication {
         let app = XCUIApplication()
-        if !options.animations { app.launchEnvironment["UITEST_DISABLE_ANIMATIONS"] = "1" }
+        app.launchEnvironment["UITEST_DISABLE_ANIMATIONS"] = "1"
         if options.reset { app.launchEnvironment["UITEST_RESET"] = "1" }
         if let language = options.language { app.launchEnvironment["UITEST_LANGUAGE"] = language }
         if options.supporter { app.launchEnvironment["UITEST_SUPPORTER"] = "1" }

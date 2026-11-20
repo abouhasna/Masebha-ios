@@ -80,6 +80,6 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: walkthrough-video
-          path: build/walkthrough.mp4
+          path: build/walkthrough.*
           if-no-files-found: warn
           retention-days: 14
