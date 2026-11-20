@@ -28,11 +28,13 @@ Development happens on Windows, and nothing compiles locally. Every build runs o
   1. generates the project;
   2. runs unit and UI tests in the Simulator;
   3. exports screenshots;
-  4. builds an unsigned `Masebha-dev.ipa` with bundle ID `nafii.masebha.dev`.
+  4. builds an unsigned `Masebha-dev.ipa` with bundle ID `nafii.masebha.dev` (with `DEV_BUILD`: the Settings switch to try supporter features, since purchases cannot work in a sideloaded build);
+  5. films `WalkthroughVideoTests` (a human-paced walk through the app in Arabic) as `walkthrough.mp4`.
 - **Inspecting a run.** `gh` lives at `C:\Program Files\GitHub CLI\gh.exe` if it is not on PATH.
   - `gh run list`, `gh run watch <id>`
   - `gh run view <id> --log-failed`
   - `gh run download <id> -n test-results` (screenshots + summary)
+  - `gh run download <id> -n walkthrough-video`
   - `gh run download <id> -n Masebha-dev-ipa`
 - **Installing on the owner's iPhone.**
   - Until purchases (Leap 2): Sideloadly and a free Apple ID. The build expires after 7 days.

@@ -88,6 +88,45 @@ struct BackupTests {
         #expect(try environment.wirdStore.summaries(day: "2026-11-17").map(\.name) == ["أذكار الصباح"])
     }
 
+    /// The owner's real export from the Android app (Nov 2026, app version 46; times and counts
+    /// replaced for the public repo, everything else exactly as exported).
+    @Test func theOwnersRealAndroidExportImports() throws {
+        let url = try #require(Bundle(for: BackupBundleToken.self).url(forResource: "android_real_backup", withExtension: "json"))
+        var file = try BackupCodec.decode(Data(contentsOf: url))
+        #expect(file.settings["app_language"]?.string == "en")
+        // The UI language is shared by tests running in parallel; switching it is tested on its own
+        // (theBackupsLanguageIsApplied), so this import keeps Arabic.
+        file.settings["app_language"] = .string("ar")
+        let environment = try makeEnvironment()
+        try environment.importBackup(file)
+
+        let adhkar = try environment.store.allDhikr()
+        #expect(adhkar.map(\.id) == [1, 5, 2, 3, 4])
+        #expect(adhkar.map(\.name) == ["سبحان الله", "لا اله الا الله ", "الحمد لله", "الله أكبر", "اللهم صل على محمد"])
+        #expect(adhkar.map(\.total) == [700, 60, 5, 10, 40])
+        #expect(adhkar.map(\.loopSize) == [33, 100, 33, 33, 33])
+        #expect(adhkar.map(\.position) == [0, 1, 2, 3, 4])
+        #expect(adhkar.map(\.timerDelayMs) == [5000, 1000, 826, 713, 1601])
+        #expect(adhkar[0].lastOpenedAt == Date(timeIntervalSince1970: 1_790_000_000))
+
+        let settings = environment.settings
+        #expect(settings.themeKey == "theme9")
+        #expect(settings.palette == ThemeRegistry.theme("theme9")!.palette)   // the same colors as Android
+        #expect(settings.fontSize == 30)
+        #expect(settings.tapSound && settings.loopSound && settings.vibrateOnLoop)
+        #expect(settings.tapVibrationMs == 180 && settings.loopVibrationMs == 400)
+        #expect(settings.resumeLoop == false && settings.hijriOffset == 0)
+
+        // Wird: the 6 lists and 81 azkar, no history yet; the iOS defaults are not added on top.
+        let wird = try #require(try environment.backupStore.read().wird)
+        #expect(wird.wirds.map(\.name) == ["My Azkar", "أذكار الصباح", "أذكار المساء", "أذكار النوم", "أذكار الاستيقاظ",
+                                           "أذكار بعد الصلاة"])
+        #expect(wird.items.count == 81)
+        #expect(wird.days.isEmpty)
+        try environment.addDefaultWirdsIfNeeded(now: now)
+        #expect(try environment.wirdStore.summaries(day: "2026-11-20").map(\.itemCount) == [5, 23, 22, 15, 4, 12])
+    }
+
     @Test func theBackupsLanguageIsApplied() throws {
         let original = Localizer.shared.language
         let systemLanguages = UserDefaults.standard.object(forKey: "AppleLanguages")

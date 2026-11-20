@@ -19,6 +19,8 @@ struct LaunchOptions {
     var announcement = false
     /// Pretends this is the n-th launch (implies popups), e.g. 13 for the Telegram invitation.
     var launchCount: Int?
+    /// Animations on, as on a real phone (the walkthrough video). Off by default: faster, steadier tests.
+    var animations = false
 }
 
 extension XCTestCase {
@@ -26,7 +28,7 @@ extension XCTestCase {
     @discardableResult
     func launchApp(_ options: LaunchOptions = LaunchOptions()) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchEnvironment["UITEST_DISABLE_ANIMATIONS"] = "1"
+        if !options.animations { app.launchEnvironment["UITEST_DISABLE_ANIMATIONS"] = "1" }
         if options.reset { app.launchEnvironment["UITEST_RESET"] = "1" }
         if let language = options.language { app.launchEnvironment["UITEST_LANGUAGE"] = language }
         if options.supporter { app.launchEnvironment["UITEST_SUPPORTER"] = "1" }
@@ -108,6 +110,22 @@ extension XCUIApplication {
     /// Whether a card with this name exists anywhere in the list (scrolling if needed).
     func hasCard(_ name: String) -> Bool {
         scrollToCard(name).exists
+    }
+
+    /// The names of the Azkar cards, in list order.
+    func cardNames() -> [String] {
+        descendants(matching: .any).matching(identifier: "card.name").allElementsBoundByIndex.map { $0.label }
+    }
+
+    /// Press and hold a card until iOS lifts it, then drag it onto another card. A slow CI
+    /// simulator sometimes drops the synthesized long press, so it tries once more if nothing moved.
+    func drag(_ name: String, onto target: String) {
+        let before = cardNames()
+        for _ in 0..<2 {
+            card(name).press(forDuration: 1.0, thenDragTo: card(target),
+                             withVelocity: .slow, thenHoldForDuration: 0.6)
+            if cardNames() != before { return }
+        }
     }
 
     func openCard(_ name: String) {

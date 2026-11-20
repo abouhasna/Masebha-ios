@@ -19,7 +19,7 @@ jobs:
   build-test-package:
     name: Build, test, package
     runs-on: macos-26
-    timeout-minutes: 60
+    timeout-minutes: 75
     steps:
       - name: Check out
         uses: actions/checkout@v7
@@ -68,4 +68,18 @@ jobs:
           name: Masebha-dev-ipa
           path: build/Masebha-dev.ipa
           if-no-files-found: error
+          retention-days: 14
+
+      # A human-paced walk through the app, filmed, for the owner to watch (after the IPA,
+      # so a problem in the film never blocks the build).
+      - name: Film the walkthrough
+        run: bash scripts/ci/record-walkthrough.sh "${{ steps.sim.outputs.udid }}"
+
+      - name: Upload walkthrough video
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: walkthrough-video
+          path: build/walkthrough.mp4
+          if-no-files-found: warn
           retention-days: 14

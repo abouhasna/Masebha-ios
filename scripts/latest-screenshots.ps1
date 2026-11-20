@@ -34,6 +34,11 @@ Get-ChildItem (Join-Path $tmp 'screenshots') -File |
         Copy-Item $_.FullName (Join-Path $dest $name) -Force
     }
 
+# The filmed walkthrough of the same run, if it has one (walkthrough.mp4).
+$ErrorActionPreference = 'Continue'
+& $gh run download $downloaded.databaseId -R $repo -n walkthrough-video -D $dest 2>$null
+$ErrorActionPreference = 'Stop'
+
 $summary = Get-Content (Join-Path $tmp 'summary.json') -Raw -ErrorAction SilentlyContinue | ConvertFrom-Json
 $info = @(
     "Run:        $($downloaded.displayTitle)"
@@ -42,7 +47,7 @@ $info = @(
     "Tests:      $($summary.passedTests) passed, $($summary.failedTests) failed (of $($summary.totalTestCount))"
     "Link:       https://github.com/$repo/actions/runs/$($downloaded.databaseId)"
     ""
-    "Videos (.mp4) are recorded automatically only for tests that failed."
+    "walkthrough.mp4 is the filmed walkthrough. Other videos (.mp4) are recorded only for tests that failed."
 )
 $info | Out-File -Encoding utf8 (Join-Path $dest '_about this run.txt')
 Remove-Item -Recurse -Force $tmp

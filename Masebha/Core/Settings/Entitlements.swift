@@ -11,11 +11,11 @@ final class Entitlements {
     @ObservationIgnored private let defaults: UserDefaults
     private(set) var record: SupporterRecord
 
-    /// Debug builds only: a switch in Settings to preview supporter features in the Simulator.
-    /// Release builds never read or set it, so it is always false there.
+    /// Debug builds and the owner's sideloaded test build (DEV_BUILD) only: a switch in Settings to
+    /// try supporter features without a purchase. The App Store build never reads or sets it.
     var debugSupporter: Bool {
         didSet {
-            #if DEBUG
+            #if DEBUG || DEV_BUILD
             defaults.set(debugSupporter, forKey: Keys.debugSupporter)
             #endif
         }
@@ -33,7 +33,7 @@ final class Entitlements {
         } else {
             record = SupporterRecord()
         }
-        #if DEBUG
+        #if DEBUG || DEV_BUILD
         debugSupporter = defaults.bool(forKey: Keys.debugSupporter)
         #else
         debugSupporter = false

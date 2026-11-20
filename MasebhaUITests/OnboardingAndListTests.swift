@@ -100,23 +100,6 @@ final class OnboardingAndListTests: XCTestCase {
         XCTAssertFalse(app.hasCard("Test dhikr"))
     }
 
-    @MainActor
-    private func cardNames(_ app: XCUIApplication) -> [String] {
-        app.descendants(matching: .any).matching(identifier: "card.name").allElementsBoundByIndex.map { $0.label }
-    }
-
-    /// Press and hold a card until iOS lifts it, then drag it onto another card. A slow CI
-    /// simulator sometimes drops the synthesized long press, so it tries once more if nothing moved.
-    @MainActor
-    private func drag(_ app: XCUIApplication, _ name: String, onto target: String) {
-        let before = cardNames(app)
-        for _ in 0..<2 {
-            app.card(name).press(forDuration: 1.0, thenDragTo: app.card(target),
-                                 withVelocity: .slow, thenHoldForDuration: 0.6)
-            if cardNames(app) != before { return }
-        }
-    }
-
     /// ⋮ → Reorder: our ≡ handles and a hint appear instead of the ⋮ menus, a tap no longer opens
     /// a card, press-and-drag moves a card, Done ends it, and the order survives a relaunch.
     @MainActor
@@ -136,17 +119,17 @@ final class OnboardingAndListTests: XCTestCase {
         app.card("Alhamdulillah").staticTexts.matching(identifier: "card.name").firstMatch.tap()
         XCTAssertFalse(app.element("counter.current").waitForExistence(timeout: 2))
 
-        drag(app, "Subhan Allah", onto: "Allahu Akbar")
+        app.drag("Subhan Allah", onto: "Allahu Akbar")
         done.tap()
         XCTAssertTrue(app.element("list.add").waitForExistence(timeout: 5))
         XCTAssertFalse(app.element("list.reorderHint").exists)
         XCTAssertTrue(app.buttons["card.menu"].firstMatch.exists)
-        XCTAssertNotEqual(cardNames(app).first, "Subhan Allah", "Order did not change: \(cardNames(app))")
-        let order = cardNames(app)
+        XCTAssertNotEqual(app.cardNames().first, "Subhan Allah", "Order did not change: \(app.cardNames())")
+        let order = app.cardNames()
 
         relaunch(app)
         XCTAssertTrue(app.card("Subhan Allah").waitForExistence(timeout: 10))
-        XCTAssertEqual(cardNames(app), order)
+        XCTAssertEqual(app.cardNames(), order)
     }
 
     /// Press-and-drag works directly too, without the reorder mode (like Android).
@@ -155,13 +138,13 @@ final class OnboardingAndListTests: XCTestCase {
         let app = launchApp()
         XCTAssertTrue(app.card("Subhan Allah").waitForExistence(timeout: 10))
 
-        drag(app, "Subhan Allah", onto: "Allahu Akbar")
+        app.drag("Subhan Allah", onto: "Allahu Akbar")
         XCTAssertFalse(app.buttons["list.doneReordering"].exists)   // no mode needed
-        XCTAssertNotEqual(cardNames(app).first, "Subhan Allah", "Order did not change: \(cardNames(app))")
-        let order = cardNames(app)
+        XCTAssertNotEqual(app.cardNames().first, "Subhan Allah", "Order did not change: \(app.cardNames())")
+        let order = app.cardNames()
 
         relaunch(app)
         XCTAssertTrue(app.card("Subhan Allah").waitForExistence(timeout: 10))
-        XCTAssertEqual(cardNames(app), order)
+        XCTAssertEqual(app.cardNames(), order)
     }
 }

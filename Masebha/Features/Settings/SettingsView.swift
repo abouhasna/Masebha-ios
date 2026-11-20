@@ -135,10 +135,10 @@ struct SettingsView: View {
                 sectionHeader(tr("settings.section.language"))
             }
 
-            #if DEBUG
+            #if DEBUG || DEV_BUILD
             Section {
                 Toggle(isOn: Bindable(environment.entitlements).debugSupporter) {
-                    SettingsRowLabel(icon: "ladybug.fill", title: "Supporter (debug only)")
+                    SettingsRowLabel(icon: "ladybug.fill", title: "Supporter (test builds only)")
                 }
                 .settingsRowBackground()
                 .accessibilityIdentifier("settings.debugSupporter")
